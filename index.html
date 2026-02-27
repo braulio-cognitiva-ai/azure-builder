@@ -3,176 +3,259 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Azure Builder — Vibe Code Your Azure Infrastructure</title>
+<title>Azure Builder — Your AI Solution Architect for Azure</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--blue:#0078D4;--blue-light:#2899f5;--blue-dark:#005a9e;--navy:#0a0e27;--navy-light:#111638;--navy-mid:#161b3d;--glass:rgba(255,255,255,0.05);--glass-border:rgba(255,255,255,0.08);--text:#e8eaf6;--text-dim:#8892b0;--green:#00d4aa;--radius:16px}
+:root{
+  --blue:#0078D4;
+  --blue-light:#2899f5;
+  --blue-dark:#005a9e;
+  --navy:#0a0e27;
+  --navy-light:#111638;
+  --navy-mid:#161b3d;
+  --glass:rgba(255,255,255,0.05);
+  --glass-border:rgba(255,255,255,0.08);
+  --text:#e8eaf6;
+  --text-dim:#8892b0;
+  --green:#00d4aa;
+  --orange:#ff8c42;
+  --purple:#9d4edd;
+  --radius:16px;
+}
 html{scroll-behavior:smooth;font-size:16px}
 body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);overflow-x:hidden;line-height:1.6}
 a{color:var(--blue-light);text-decoration:none}
 
 /* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1rem 2rem;transition:all .3s}
-nav.scrolled{background:rgba(10,14,39,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--glass-border);padding:.7rem 2rem}
-.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
-.logo{font-weight:800;font-size:1.4rem;display:flex;align-items:center;gap:.5rem}
-.logo i{color:var(--blue);font-size:1.2rem}
-.nav-links{display:flex;gap:2rem;list-style:none}
+nav.scrolled{background:rgba(10,14,39,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--glass-border);padding:.7rem 2rem}
+.nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:800;font-size:1.5rem;display:flex;align-items:center;gap:.6rem;color:#fff}
+.logo i{color:var(--blue);font-size:1.3rem}
+.nav-links{display:flex;gap:2.2rem;list-style:none;align-items:center}
 .nav-links a{color:var(--text-dim);font-size:.9rem;font-weight:500;transition:color .2s}
 .nav-links a:hover{color:#fff}
-.nav-cta{background:var(--blue);color:#fff;padding:.55rem 1.4rem;border-radius:8px;font-weight:600;font-size:.85rem;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s}
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,120,212,.4)}
-.hamburger{display:none;background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer}
+.nav-cta{background:var(--blue);color:#fff;padding:.6rem 1.5rem;border-radius:8px;font-weight:600;font-size:.9rem;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,120,212,.5)}
+.hamburger{display:none;background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;padding:8rem 2rem 4rem;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-30%;right:-15%;width:900px;height:900px;background:radial-gradient(circle,rgba(0,120,212,.12) 0%,transparent 70%);pointer-events:none;animation:pulse 8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.8;transform:scale(1.1)}}
+.hero-content{max-width:1280px;margin:0 auto;text-align:center}
+.hero h1{font-size:4rem;font-weight:900;line-height:1.1;margin-bottom:1.5rem;background:linear-gradient(135deg,#fff 0%,var(--blue-light) 50%,var(--green) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .subtitle{color:var(--text-dim);font-size:1.3rem;margin-bottom:2.5rem;max-width:800px;margin-left:auto;margin-right:auto;line-height:1.6}
+.hero-buttons{display:flex;gap:1.2rem;justify-content:center;margin-bottom:4rem;flex-wrap:wrap}
+.btn-primary{background:var(--blue);color:#fff;padding:1rem 2.5rem;border-radius:12px;font-weight:600;font-size:1.05rem;border:none;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:.7rem}
+.btn-primary:hover{background:var(--blue-light);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,120,212,.4)}
+.btn-secondary{background:var(--glass);color:#fff;padding:1rem 2.5rem;border-radius:12px;font-weight:600;font-size:1.05rem;border:1px solid var(--glass-border);cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:.7rem}
+.btn-secondary:hover{background:rgba(255,255,255,.1);transform:translateY(-3px);border-color:var(--blue)}
+
+/* HERO MOCKUP */
+.hero-mockup{max-width:1100px;margin:0 auto;background:rgba(0,0,0,.4);border-radius:20px;border:1px solid var(--glass-border);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.mockup-input{padding:1.5rem;background:rgba(255,255,255,.03);border-bottom:1px solid var(--glass-border);display:flex;align-items:center;gap:1rem}
+.mockup-input i{color:var(--blue);font-size:1.2rem}
+.mockup-text{flex:1;color:var(--text-dim);font-size:.95rem;padding:.8rem 1.2rem;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid var(--glass-border)}
+.typing-animation{display:inline-block;animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.mockup-options{padding:2rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+.option-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:1.5rem;transition:all .3s;opacity:0;animation:slideUp .5s forwards}
+.option-card:nth-child(1){animation-delay:.3s}
+.option-card:nth-child(2){animation-delay:.6s}
+.option-card:nth-child(3){animation-delay:.9s}
+@keyframes slideUp{to{opacity:1;transform:translateY(0)}from{transform:translateY(20px)}}
+.option-card:hover{transform:translateY(-6px);border-color:var(--blue);box-shadow:0 8px 30px rgba(0,120,212,.2)}
+.option-label{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:.5rem}
+.option-card.starter .option-label{color:var(--green)}
+.option-card.balanced .option-label{color:var(--blue-light)}
+.option-card.premium .option-label{color:var(--orange)}
+.option-price{font-size:2.2rem;font-weight:800;margin-bottom:.8rem}
+.option-price small{font-size:.9rem;color:var(--text-dim);font-weight:400}
+.option-arch{font-size:.75rem;color:var(--text-dim);margin-bottom:1rem;line-height:1.5}
+.option-resources{font-size:.7rem;color:var(--text-dim);margin-bottom:1rem}
+.option-resources li{margin-bottom:.3rem;list-style:none;display:flex;align-items:center;gap:.4rem}
+.option-resources i{color:var(--green);font-size:.6rem}
+.option-btn{width:100%;padding:.7rem;background:rgba(0,120,212,.15);color:var(--blue-light);border:1px solid rgba(0,120,212,.3);border-radius:8px;cursor:pointer;font-weight:600;font-size:.8rem;transition:all .2s}
+.option-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
 
 /* SECTIONS */
 section{padding:6rem 2rem}
-.container{max-width:1200px;margin:0 auto}
-.section-label{color:var(--blue-light);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:.75rem}
-.section-title{font-size:2.4rem;font-weight:800;margin-bottom:1rem}
-.section-sub{color:var(--text-dim);font-size:1.1rem;max-width:600px}
-
-/* HERO */
-.hero{min-height:100vh;display:flex;align-items:center;position:relative;padding-top:5rem;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-40%;right:-20%;width:800px;height:800px;background:radial-gradient(circle,rgba(0,120,212,.15) 0%,transparent 70%);pointer-events:none}
-.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;width:100%}
-.hero h1{font-size:3.6rem;font-weight:800;line-height:1.1;margin-bottom:1.2rem}
-.hero h1 span{background:linear-gradient(135deg,var(--blue),var(--blue-light),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero p{color:var(--text-dim);font-size:1.15rem;margin-bottom:2rem;max-width:500px}
-.hero-buttons{display:flex;gap:1rem;flex-wrap:wrap}
-.btn-primary{background:var(--blue);color:#fff;padding:.85rem 2rem;border-radius:10px;font-weight:600;font-size:1rem;border:none;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.5rem}
-.btn-primary:hover{background:var(--blue-light);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,120,212,.3)}
-.btn-secondary{background:var(--glass);color:#fff;padding:.85rem 2rem;border-radius:10px;font-weight:600;font-size:1rem;border:1px solid var(--glass-border);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.5rem}
-.btn-secondary:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
-
-/* TERMINAL */
-.terminal{background:#0d1117;border-radius:var(--radius);border:1px solid rgba(255,255,255,.1);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.terminal-bar{display:flex;align-items:center;gap:6px;padding:.75rem 1rem;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06)}
-.terminal-dot{width:12px;height:12px;border-radius:50%}
-.terminal-dot:nth-child(1){background:#ff5f57}
-.terminal-dot:nth-child(2){background:#febc2e}
-.terminal-dot:nth-child(3){background:#28c840}
-.terminal-bar span{margin-left:auto;color:var(--text-dim);font-size:.75rem}
-.terminal-body{padding:1.25rem;font-family:'Courier New',monospace;font-size:.85rem;min-height:220px}
-.terminal-line{margin-bottom:.5rem;opacity:0;animation:fadeInLine .3s forwards}
-.t-prompt{color:var(--green)}
-.t-comment{color:#6a737d}
-.t-cmd{color:var(--blue-light)}
-.t-flag{color:#f97583}
-.t-str{color:#a5d6ff}
-.t-output{color:var(--text-dim)}
-@keyframes fadeInLine{to{opacity:1}}
+.container{max-width:1280px;margin:0 auto}
+.section-header{text-align:center;margin-bottom:4rem}
+.section-label{color:var(--blue-light);font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:2.5px;margin-bottom:.8rem}
+.section-title{font-size:3rem;font-weight:900;margin-bottom:1rem;line-height:1.2}
+.section-subtitle{color:var(--text-dim);font-size:1.15rem;max-width:700px;margin:0 auto}
 
 /* HOW IT WORKS */
-.how{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-light) 100%)}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem}
-.step{text-align:center;padding:2.5rem 2rem;border-radius:var(--radius);background:var(--glass);border:1px solid var(--glass-border);transition:transform .3s,box-shadow .3s}
-.step:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,120,212,.1)}
-.step-num{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-light));display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;font-weight:800;font-size:1.3rem}
-.step h3{font-size:1.2rem;margin-bottom:.6rem}
-.step p{color:var(--text-dim);font-size:.95rem}
-.step-connector{display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:1.5rem}
+.how-it-works{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-light) 100%)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;margin-top:3rem}
+.step{position:relative;padding:2rem;text-align:center}
+.step::after{content:'';position:absolute;top:50%;right:-1rem;width:2rem;height:2px;background:linear-gradient(90deg,var(--blue),transparent);display:block}
+.step:last-child::after{display:none}
+.step-icon{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-light));display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.8rem;color:#fff;box-shadow:0 8px 25px rgba(0,120,212,.3)}
+.step h3{font-size:1.15rem;margin-bottom:.7rem;font-weight:700}
+.step p{color:var(--text-dim);font-size:.9rem;line-height:1.6}
+
+/* WORKSPACE MOCKUP */
+.workspace-section{background:linear-gradient(180deg,var(--navy-light) 0%,var(--navy-mid) 100%);position:relative;overflow:hidden}
+.workspace-section::before{content:'';position:absolute;bottom:-40%;left:-10%;width:700px;height:700px;background:radial-gradient(circle,rgba(0,120,212,.08) 0%,transparent 70%);pointer-events:none}
+.workspace-mockup{max-width:1200px;margin:3rem auto 0;background:rgba(0,0,0,.5);border-radius:20px;border:1px solid var(--glass-border);overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.7)}
+.workspace-header{padding:1rem 1.5rem;background:rgba(255,255,255,.02);border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:between}
+.workspace-dots{display:flex;gap:6px}
+.workspace-dot{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.1)}
+.workspace-title{flex:1;text-align:center;font-size:.85rem;color:var(--text-dim)}
+.workspace-body{display:grid;grid-template-columns:1fr 1.2fr;min-height:500px}
+.workspace-chat{padding:2rem;border-right:1px solid var(--glass-border);background:rgba(0,0,0,.2)}
+.chat-message{margin-bottom:1.5rem;animation:fadeIn .4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.chat-message.user{text-align:right}
+.chat-bubble{display:inline-block;padding:.8rem 1.2rem;border-radius:12px;font-size:.85rem;max-width:85%;line-height:1.5}
+.chat-message.user .chat-bubble{background:var(--blue);color:#fff}
+.chat-message.ai .chat-bubble{background:var(--glass);color:var(--text);border:1px solid var(--glass-border)}
+.workspace-options{padding:2rem;background:rgba(0,0,0,.3)}
+.workspace-option-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:1.5rem;margin-bottom:1rem}
+.workspace-option-card:last-child{margin-bottom:0}
+.option-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.option-tag{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;padding:.3rem .8rem;background:rgba(0,120,212,.2);color:var(--blue-light);border-radius:6px;font-weight:600}
+.option-cost{font-size:1.8rem;font-weight:800;color:var(--green)}
+.option-cost small{font-size:.8rem;color:var(--text-dim);font-weight:400}
+.arch-diagram{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap}
+.arch-box{padding:.5rem .9rem;background:rgba(0,120,212,.1);border:1px solid rgba(0,120,212,.3);border-radius:6px;font-size:.75rem;color:var(--blue-light)}
+.arch-arrow{color:var(--text-dim);font-size:.7rem}
 
 /* FEATURES */
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
-.feature-card{padding:2rem;border-radius:var(--radius);background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(10px);transition:transform .3s,border-color .3s}
-.feature-card:hover{transform:translateY(-4px);border-color:rgba(0,120,212,.3)}
-.feature-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,rgba(0,120,212,.2),rgba(0,120,212,.05));display:flex;align-items:center;justify-content:center;margin-bottom:1rem;color:var(--blue-light);font-size:1.2rem}
-.feature-card h3{font-size:1.1rem;margin-bottom:.5rem}
-.feature-card p{color:var(--text-dim);font-size:.9rem;line-height:1.6}
+.features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.8rem;margin-top:3rem}
+.feature{padding:2rem;border-radius:var(--radius);background:var(--glass);border:1px solid var(--glass-border);transition:all .3s}
+.feature:hover{transform:translateY(-6px);border-color:var(--blue);box-shadow:0 12px 40px rgba(0,120,212,.15)}
+.feature-emoji{font-size:2.5rem;margin-bottom:1rem;display:block}
+.feature h3{font-size:1.1rem;margin-bottom:.7rem;font-weight:700}
+.feature p{color:var(--text-dim);font-size:.88rem;line-height:1.7}
 
-/* DEMO */
-.demo-section{background:linear-gradient(180deg,var(--navy-light) 0%,var(--navy-mid) 100%)}
-.demo-wrap{max-width:700px;margin:3rem auto 0}
-.demo-terminal .terminal-body{min-height:260px}
-.demo-input-wrap{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;padding:.6rem .8rem;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.08)}
-.demo-input-wrap span{color:var(--green);font-family:'Courier New',monospace;font-size:.85rem}
-#demo-input{flex:1;background:none;border:none;color:#fff;font-family:'Courier New',monospace;font-size:.85rem;outline:none}
-#demo-input::placeholder{color:#4a5568}
-#demo-output{font-family:'Courier New',monospace;font-size:.85rem;min-height:140px}
-.demo-suggestions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}
-.demo-suggestions button{background:rgba(0,120,212,.15);color:var(--blue-light);border:1px solid rgba(0,120,212,.3);border-radius:6px;padding:.35rem .75rem;font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s}
-.demo-suggestions button:hover{background:rgba(0,120,212,.3)}
+/* TEMPLATES */
+.templates-section{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-light) 100%)}
+.templates-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem}
+.template-card{padding:2.5rem 2rem;border-radius:var(--radius);background:var(--glass);border:1px solid var(--glass-border);text-align:center;transition:all .3s;cursor:pointer}
+.template-card:hover{transform:translateY(-8px);border-color:var(--blue);box-shadow:0 15px 50px rgba(0,120,212,.2)}
+.template-icon{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,rgba(0,120,212,.2),rgba(0,120,212,.05));display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:2rem}
+.template-card h3{font-size:1.3rem;margin-bottom:.7rem;font-weight:700}
+.template-desc{color:var(--text-dim);font-size:.9rem;margin-bottom:1.2rem;line-height:1.6}
+.template-price{color:var(--green);font-weight:600;font-size:.9rem}
 
 /* PRICING */
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem}
-.price-card{padding:2.5rem 2rem;border-radius:var(--radius);background:var(--glass);border:1px solid var(--glass-border);text-align:center;position:relative;transition:transform .3s}
-.price-card:hover{transform:translateY(-6px)}
-.price-card.popular{border-color:var(--blue);background:linear-gradient(180deg,rgba(0,120,212,.08) 0%,var(--glass) 100%)}
-.popular-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;padding:.3rem 1.2rem;border-radius:20px;font-size:.75rem;font-weight:600}
-.price-card h3{font-size:1.3rem;margin-bottom:.5rem}
-.price-card .price{font-size:3rem;font-weight:800;margin:1rem 0}
-.price-card .price span{font-size:1rem;color:var(--text-dim);font-weight:400}
-.price-card .price-sub{color:var(--text-dim);font-size:.9rem;margin-bottom:1.5rem}
-.price-features{list-style:none;text-align:left;margin-bottom:2rem}
-.price-features li{padding:.5rem 0;font-size:.9rem;color:var(--text-dim);display:flex;align-items:center;gap:.5rem}
-.price-features li i{color:var(--green);font-size:.8rem}
-.price-btn{display:block;width:100%;padding:.85rem;border-radius:10px;font-weight:600;font-size:.95rem;cursor:pointer;transition:all .2s;border:none}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2.5rem;margin-top:4rem;max-width:1100px;margin-left:auto;margin-right:auto}
+.price-card{padding:3rem 2.5rem;border-radius:20px;background:var(--glass);border:1px solid var(--glass-border);position:relative;transition:all .3s}
+.price-card:hover{transform:translateY(-8px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.price-card.popular{border-color:var(--blue);background:linear-gradient(180deg,rgba(0,120,212,.1) 0%,var(--glass) 100%);box-shadow:0 20px 60px rgba(0,120,212,.15)}
+.popular-badge{position:absolute;top:-16px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--blue),var(--blue-light));color:#fff;padding:.4rem 1.5rem;border-radius:25px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.price-card h3{font-size:1.5rem;margin-bottom:.5rem;font-weight:800}
+.price-card .tier-desc{color:var(--text-dim);font-size:.9rem;margin-bottom:2rem}
+.price{font-size:3.5rem;font-weight:900;margin:1.5rem 0}
+.price span{font-size:1.1rem;color:var(--text-dim);font-weight:400}
+.price-features{list-style:none;margin:2rem 0;min-height:240px}
+.price-features li{padding:.6rem 0;font-size:.9rem;color:var(--text);display:flex;align-items:start;gap:.7rem}
+.price-features i{color:var(--green);font-size:.9rem;margin-top:.2rem}
+.price-btn{display:block;width:100%;padding:1rem;border-radius:10px;font-weight:700;font-size:1rem;cursor:pointer;transition:all .3s;border:none}
 .price-btn-primary{background:var(--blue);color:#fff}
-.price-btn-primary:hover{background:var(--blue-light);box-shadow:0 4px 20px rgba(0,120,212,.3)}
-.price-btn-outline{background:transparent;color:#fff;border:1px solid var(--glass-border)}
-.price-btn-outline:hover{border-color:var(--blue);background:rgba(0,120,212,.05)}
+.price-btn-primary:hover{background:var(--blue-light);box-shadow:0 8px 30px rgba(0,120,212,.4);transform:translateY(-2px)}
+.price-btn-outline{background:transparent;color:#fff;border:2px solid var(--glass-border)}
+.price-btn-outline:hover{border-color:var(--blue);background:rgba(0,120,212,.08)}
+
+/* SECURITY */
+.security-section{background:linear-gradient(180deg,var(--navy-light) 0%,var(--navy) 100%)}
+.security-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:2rem;margin-top:3rem}
+.security-item{text-align:center;padding:2rem 1.5rem;border-radius:var(--radius);background:var(--glass);border:1px solid var(--glass-border);transition:transform .3s}
+.security-item:hover{transform:translateY(-6px)}
+.security-icon{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,rgba(0,120,212,.15),rgba(0,120,212,.05));display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.5rem;color:var(--blue-light)}
+.security-item h4{font-size:.95rem;margin-bottom:.5rem;font-weight:700}
+.security-item p{color:var(--text-dim);font-size:.8rem;line-height:1.5}
 
 /* TESTIMONIALS */
-.testimonials{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-light) 100%)}
-.testimonial-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem}
-.testimonial{padding:2rem;border-radius:var(--radius);background:var(--glass);border:1px solid var(--glass-border)}
-.testimonial .stars{color:#fbbf24;margin-bottom:1rem;font-size:.9rem}
-.testimonial blockquote{color:var(--text-dim);font-size:.95rem;line-height:1.7;margin-bottom:1.5rem;font-style:italic}
-.testimonial-author{display:flex;align-items:center;gap:.75rem}
-.testimonial-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem}
-.testimonial-info h4{font-size:.9rem}
-.testimonial-info p{color:var(--text-dim);font-size:.8rem}
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem}
+.testimonial{padding:2.5rem;border-radius:var(--radius);background:var(--glass);border:1px solid var(--glass-border);position:relative}
+.testimonial::before{content:'"';position:absolute;top:1rem;left:1.5rem;font-size:5rem;color:rgba(0,120,212,.15);font-family:Georgia,serif;line-height:1}
+.testimonial-content{position:relative;z-index:1}
+.testimonial-text{color:var(--text);font-size:1rem;line-height:1.8;margin-bottom:2rem;font-style:italic}
+.testimonial-author{display:flex;align-items:center;gap:1rem}
+.author-avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem}
+.author-info h4{font-size:1rem;margin-bottom:.2rem;font-weight:700}
+.author-info p{color:var(--text-dim);font-size:.85rem}
+.testimonial-metric{display:inline-block;margin-top:1rem;padding:.4rem .9rem;background:rgba(0,212,170,.1);color:var(--green);border-radius:6px;font-size:.8rem;font-weight:600}
 
 /* FAQ */
-.faq-list{max-width:750px;margin:3rem auto 0}
-.faq-item{border-bottom:1px solid var(--glass-border);overflow:hidden}
-.faq-q{display:flex;align-items:center;justify-content:space-between;padding:1.3rem 0;cursor:pointer;font-weight:600;font-size:1.05rem;transition:color .2s;gap:1rem}
+.faq-list{max-width:850px;margin:3rem auto 0}
+.faq-item{border-bottom:1px solid var(--glass-border)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:1.8rem 0;cursor:pointer;font-weight:600;font-size:1.1rem;transition:color .2s;gap:1.5rem}
 .faq-q:hover{color:var(--blue-light)}
-.faq-q i{transition:transform .3s;color:var(--text-dim);font-size:.8rem;flex-shrink:0}
+.faq-q i{transition:transform .3s;color:var(--blue);font-size:.9rem;flex-shrink:0}
 .faq-item.open .faq-q i{transform:rotate(180deg)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease}
-.faq-item.open .faq-a{max-height:200px;padding-bottom:1.3rem}
-.faq-a p{color:var(--text-dim);font-size:.95rem;line-height:1.7}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:1.8rem}
+.faq-a p{color:var(--text-dim);font-size:1rem;line-height:1.8}
+
+/* CTA */
+.cta-section{background:linear-gradient(135deg,rgba(0,120,212,.15) 0%,rgba(0,0,0,.3) 100%);position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;top:-50%;right:-20%;width:800px;height:800px;background:radial-gradient(circle,rgba(0,120,212,.2) 0%,transparent 70%);pointer-events:none}
+.cta-content{text-align:center;position:relative;z-index:1}
+.cta-content h2{font-size:3.5rem;font-weight:900;margin-bottom:1.5rem;line-height:1.2}
+.cta-content p{font-size:1.2rem;color:var(--text-dim);margin-bottom:2.5rem}
+.cta-form{max-width:600px;margin:0 auto;display:flex;gap:1rem}
+.cta-form input{flex:1;padding:1.2rem 1.5rem;border-radius:12px;border:1px solid var(--glass-border);background:rgba(0,0,0,.5);color:#fff;font-size:1rem;outline:none;font-family:'Inter',sans-serif}
+.cta-form input:focus{border-color:var(--blue);background:rgba(0,0,0,.7)}
+.cta-form button{background:var(--blue);color:#fff;border:none;padding:1.2rem 2.5rem;border-radius:12px;cursor:pointer;font-weight:700;font-size:1rem;transition:all .3s;white-space:nowrap}
+.cta-form button:hover{background:var(--blue-light);box-shadow:0 10px 40px rgba(0,120,212,.4);transform:translateY(-2px)}
 
 /* FOOTER */
-footer{background:var(--navy-light);border-top:1px solid var(--glass-border);padding:4rem 2rem 2rem}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:3rem;margin-bottom:3rem}
-.footer-brand p{color:var(--text-dim);font-size:.9rem;margin-top:.75rem;max-width:280px}
-.footer-col h4{font-size:.9rem;font-weight:600;margin-bottom:1rem;text-transform:uppercase;letter-spacing:1px}
-.footer-col a{display:block;color:var(--text-dim);font-size:.9rem;padding:.3rem 0;transition:color .2s}
-.footer-col a:hover{color:#fff}
-.newsletter-form{display:flex;gap:.5rem;margin-top:.5rem}
-.newsletter-form input{flex:1;padding:.65rem .8rem;border-radius:8px;border:1px solid var(--glass-border);background:var(--glass);color:#fff;font-size:.85rem;outline:none;font-family:'Inter',sans-serif}
-.newsletter-form input:focus{border-color:var(--blue)}
-.newsletter-form button{background:var(--blue);color:#fff;border:none;padding:.65rem 1.2rem;border-radius:8px;cursor:pointer;font-weight:600;font-size:.85rem;transition:background .2s}
-.newsletter-form button:hover{background:var(--blue-light)}
-.social-links{display:flex;gap:1rem;margin-top:1rem}
-.social-links a{width:36px;height:36px;border-radius:8px;background:var(--glass);border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;color:var(--text-dim);transition:all .2s}
-.social-links a:hover{color:#fff;border-color:var(--blue);background:rgba(0,120,212,.1)}
-.footer-bottom{text-align:center;padding-top:2rem;border-top:1px solid var(--glass-border);color:var(--text-dim);font-size:.8rem}
+footer{background:var(--navy-light);border-top:1px solid var(--glass-border);padding:5rem 2rem 2rem}
+.footer-grid{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr 1.5fr;gap:4rem;margin-bottom:3rem}
+.footer-brand p{color:var(--text-dim);font-size:.95rem;margin-top:1rem;max-width:320px;line-height:1.7}
+.footer-col h4{font-size:.85rem;font-weight:700;margin-bottom:1.2rem;text-transform:uppercase;letter-spacing:1.5px}
+.footer-col a{display:block;color:var(--text-dim);font-size:.9rem;padding:.4rem 0;transition:color .2s}
+.footer-col a:hover{color:#fff;padding-left:.3rem}
+.social-links{display:flex;gap:1rem;margin-top:1.5rem}
+.social-links a{width:40px;height:40px;border-radius:10px;background:var(--glass);border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;color:var(--text-dim);transition:all .3s;font-size:1.1rem}
+.social-links a:hover{color:#fff;border-color:var(--blue);background:rgba(0,120,212,.15);transform:translateY(-3px)}
+.footer-bottom{text-align:center;padding-top:3rem;border-top:1px solid var(--glass-border);color:var(--text-dim);font-size:.85rem}
+.footer-bottom a{color:var(--blue-light);margin:0 .5rem}
+.footer-bottom a:hover{color:var(--blue-light);text-decoration:underline}
 
 /* ANIMATIONS */
-.reveal{opacity:0;transform:translateY(30px);transition:all .6s cubic-bezier(.16,1,.3,1)}
+.reveal{opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.16,1,.3,1)}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
 /* RESPONSIVE */
+@media(max-width:1200px){
+  .hero h1{font-size:3.2rem}
+  .section-title{font-size:2.5rem}
+  .features-grid{grid-template-columns:repeat(2,1fr)}
+  .templates-grid{grid-template-columns:repeat(2,1fr)}
+  .security-grid{grid-template-columns:repeat(3,1fr)}
+}
 @media(max-width:900px){
-  .hero h1{font-size:2.4rem}
-  .hero-grid,.steps,.features-grid,.pricing-grid,.testimonial-grid,.footer-grid{grid-template-columns:1fr}
-  .step-connector{display:none}
+  .hero h1{font-size:2.5rem}
+  .hero .subtitle{font-size:1.1rem}
+  .steps,.workspace-body,.mockup-options,.pricing-grid,.testimonials-grid{grid-template-columns:1fr}
+  .step::after{display:none}
+  .workspace-body{min-height:auto}
   .nav-links{display:none}
   .hamburger{display:block}
-  .nav-links.open{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:rgba(10,14,39,.97);padding:1.5rem 2rem;gap:1rem;border-bottom:1px solid var(--glass-border)}
+  .nav-links.open{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:rgba(10,14,39,.98);padding:2rem;gap:1.5rem;border-bottom:1px solid var(--glass-border)}
   section{padding:4rem 1.5rem}
-  .section-title{font-size:1.8rem}
+  .footer-grid{grid-template-columns:1fr;gap:2.5rem}
+  .features-grid{grid-template-columns:1fr}
+  .templates-grid{grid-template-columns:1fr}
+  .security-grid{grid-template-columns:repeat(2,1fr)}
+  .cta-form{flex-direction:column}
+  .cta-content h2{font-size:2.5rem}
 }
 @media(max-width:600px){
-  .hero h1{font-size:1.9rem}
-  .hero-buttons{flex-direction:column}
-  .pricing-grid{gap:1.5rem}
+  .hero h1{font-size:2rem}
+  .section-title{font-size:2rem}
+  .cta-content h2{font-size:2rem}
+  .security-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -181,63 +264,187 @@ footer{background:var(--navy-light);border-top:1px solid var(--glass-border);pad
 <!-- NAV -->
 <nav id="nav">
   <div class="nav-inner">
-    <div class="logo"><i class="fa-solid fa-cloud"></i> Azure Builder</div>
+    <div class="logo"><i class="fa-solid fa-brain-circuit"></i> Azure Builder</div>
     <ul class="nav-links" id="navLinks">
       <li><a href="#how">How It Works</a></li>
+      <li><a href="#experience">Experience</a></li>
       <li><a href="#features">Features</a></li>
-      <li><a href="#demo">Demo</a></li>
+      <li><a href="#templates">Templates</a></li>
       <li><a href="#pricing">Pricing</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
-    <button class="nav-cta" onclick="location.href='#pricing'">Get Started Free</button>
+    <button class="nav-cta" onclick="location.href='#cta'">Start Building</button>
     <button class="hamburger" id="hamburger" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero" id="hero">
-  <div class="container hero-grid">
-    <div>
-      <h1>Vibe Code Your <span>Azure Infrastructure</span></h1>
-      <p>Describe what you need in plain English. Our AI translates your intent into Azure CLI commands and provisions resources instantly. No syntax memorization. No docs rabbit holes. Just build.</p>
-      <div class="hero-buttons">
-        <button class="btn-primary" onclick="location.href='#pricing'"><i class="fa-solid fa-rocket"></i> Get Started Free</button>
-        <button class="btn-secondary" onclick="location.href='#demo'"><i class="fa-solid fa-play"></i> Watch Demo</button>
-      </div>
+<section class="hero">
+  <div class="hero-content">
+    <h1>Your AI Solution Architect for Azure</h1>
+    <p class="subtitle">Describe your infrastructure needs in plain English. Get 2-3 complete architecture proposals with real-time Azure pricing, detailed diagrams, and cost comparisons. Pick the one that fits, review the plan, and deploy to your subscription with one click.</p>
+    <div class="hero-buttons">
+      <button class="btn-primary" onclick="location.href='#cta'"><i class="fa-solid fa-rocket"></i> Start Building Free</button>
+      <button class="btn-secondary" onclick="scrollTo(0,800)"><i class="fa-solid fa-play-circle"></i> See How It Works</button>
     </div>
-    <div class="terminal" id="heroTerminal">
-      <div class="terminal-bar">
-        <div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div>
-        <span>azure-builder</span>
+    
+    <div class="hero-mockup">
+      <div class="mockup-input">
+        <i class="fa-solid fa-message-dots"></i>
+        <div class="mockup-text">I need a Teams chatbot for 5000 users<span class="typing-animation">|</span></div>
       </div>
-      <div class="terminal-body" id="heroTerminalBody"></div>
+      <div class="mockup-options">
+        <div class="option-card starter">
+          <div class="option-label">Starter</div>
+          <div class="option-price">$47<small>/mo</small></div>
+          <div class="option-arch">App Service (B1) + Azure Bot + Table Storage</div>
+          <ul class="option-resources">
+            <li><i class="fa-solid fa-circle"></i> Basic App Service</li>
+            <li><i class="fa-solid fa-circle"></i> Bot Framework SDK</li>
+            <li><i class="fa-solid fa-circle"></i> Table Storage (1GB)</li>
+          </ul>
+          <button class="option-btn">Select & Deploy</button>
+        </div>
+        <div class="option-card balanced">
+          <div class="option-label">Balanced</div>
+          <div class="option-price">$156<small>/mo</small></div>
+          <div class="option-arch">App Service (P1v2) + Azure Bot + Cosmos DB + App Insights</div>
+          <ul class="option-resources">
+            <li><i class="fa-solid fa-circle"></i> Premium App Service</li>
+            <li><i class="fa-solid fa-circle"></i> Cosmos DB (autoscale)</li>
+            <li><i class="fa-solid fa-circle"></i> Application Insights</li>
+            <li><i class="fa-solid fa-circle"></i> Auto-scaling enabled</li>
+          </ul>
+          <button class="option-btn">Select & Deploy</button>
+        </div>
+        <div class="option-card premium">
+          <div class="option-label">Enterprise</div>
+          <div class="option-price">$412<small>/mo</small></div>
+          <div class="option-arch">AKS + Azure Bot + Cosmos DB + Redis + CDN + App Insights</div>
+          <ul class="option-resources">
+            <li><i class="fa-solid fa-circle"></i> Kubernetes cluster (3 nodes)</li>
+            <li><i class="fa-solid fa-circle"></i> Cosmos DB (global)</li>
+            <li><i class="fa-solid fa-circle"></i> Redis Cache (premium)</li>
+            <li><i class="fa-solid fa-circle"></i> Azure CDN + WAF</li>
+          </ul>
+          <button class="option-btn">Select & Deploy</button>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="how" id="how">
+<section class="how-it-works" id="how">
   <div class="container">
-    <div class="reveal" style="text-align:center">
+    <div class="section-header reveal">
       <div class="section-label">How It Works</div>
-      <h2 class="section-title">Three Steps to Infrastructure</h2>
-      <p class="section-sub" style="margin:0 auto">From thought to deployed resource in under a minute.</p>
+      <h2 class="section-title">From Idea to Production in 4 Steps</h2>
+      <p class="section-subtitle">No architecture diagrams. No Excel cost calculators. Just describe what you need.</p>
     </div>
     <div class="steps">
       <div class="step reveal">
-        <div class="step-num">1</div>
-        <h3>Describe in Plain English</h3>
-        <p>Tell Azure Builder what you need — "Create a web app with a SQL database in West US" — like you'd tell a colleague.</p>
+        <div class="step-icon"><i class="fa-solid fa-message"></i></div>
+        <h3>Describe Your Needs</h3>
+        <p>Tell our AI what you're building in plain English. "I need a Teams chatbot for 5000 users" or "Set up a data pipeline with event streaming."</p>
       </div>
       <div class="step reveal">
-        <div class="step-num">2</div>
-        <h3>AI Generates CLI Commands</h3>
-        <p>Our AI understands your intent, resolves dependencies, and generates the exact Azure CLI commands needed.</p>
+        <div class="step-icon"><i class="fa-solid fa-lightbulb"></i></div>
+        <h3>Get Architecture Options</h3>
+        <p>AI analyzes your requirements and proposes 2-3 complete architectures with real-time Azure pricing, diagrams, resource lists, and trade-offs.</p>
       </div>
       <div class="step reveal">
-        <div class="step-num">3</div>
-        <h3>One-Click Provision</h3>
-        <p>Review the generated commands, tweak if you want, and deploy to Azure with a single click. Done.</p>
+        <div class="step-icon"><i class="fa-solid fa-balance-scale"></i></div>
+        <h3>Compare & Review</h3>
+        <p>See cost breakdowns, performance differences, and security defaults. Pick the architecture that fits your budget and scale requirements.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-icon"><i class="fa-solid fa-rocket"></i></div>
+        <h3>Approve & Deploy</h3>
+        <p>Review the exact deployment plan, approve with one click, and watch your infrastructure provision to your Azure subscription automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKSPACE EXPERIENCE -->
+<section class="workspace-section" id="experience">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">The AI Architect Experience</div>
+      <h2 class="section-title">Architecture Proposals in Real-Time</h2>
+      <p class="section-subtitle">Multiple options, real costs, you choose. This is how infrastructure decisions should be made.</p>
+    </div>
+    
+    <div class="workspace-mockup reveal">
+      <div class="workspace-header">
+        <div class="workspace-dots">
+          <div class="workspace-dot"></div>
+          <div class="workspace-dot"></div>
+          <div class="workspace-dot"></div>
+        </div>
+        <div class="workspace-title">azure-builder workspace</div>
+      </div>
+      <div class="workspace-body">
+        <div class="workspace-chat">
+          <div class="chat-message user">
+            <div class="chat-bubble">I need a scalable web application with a PostgreSQL database, supporting 10K daily active users. Must be secure and cost-effective.</div>
+          </div>
+          <div class="chat-message ai">
+            <div class="chat-bubble">Got it! I'm analyzing your requirements and checking real-time Azure pricing across multiple regions. I'll propose 3 architecture options optimized for cost, performance, and scalability.</div>
+          </div>
+          <div class="chat-message ai">
+            <div class="chat-bubble">✓ Analyzed workload requirements<br>✓ Estimated resource needs<br>✓ Retrieved current Azure pricing<br>✓ Generated 3 architecture proposals</div>
+          </div>
+        </div>
+        <div class="workspace-options">
+          <div class="workspace-option-card">
+            <div class="option-header">
+              <span class="option-tag">Cost-Optimized</span>
+              <div class="option-cost">$89<small>/mo</small></div>
+            </div>
+            <div class="arch-diagram">
+              <div class="arch-box">App Service B2</div>
+              <div class="arch-arrow">→</div>
+              <div class="arch-box">PostgreSQL Flexible (B2s)</div>
+              <div class="arch-arrow">→</div>
+              <div class="arch-box">Blob Storage</div>
+            </div>
+            <p style="font-size:.85rem;color:var(--text-dim);line-height:1.6;">Basic tier with auto-scaling. Supports 10K DAU with occasional slowdowns during peak. Good for MVPs and budget-conscious projects.</p>
+          </div>
+          <div class="workspace-option-card">
+            <div class="option-header">
+              <span class="option-tag" style="background:rgba(40,153,245,.2);color:var(--blue-light);">Balanced</span>
+              <div class="option-cost">$243<small>/mo</small></div>
+            </div>
+            <div class="arch-diagram">
+              <div class="arch-box">App Service P1v3</div>
+              <div class="arch-arrow">→</div>
+              <div class="arch-box">PostgreSQL (GP_Gen5_2)</div>
+              <div class="arch-arrow">→</div>
+              <div class="arch-box">Redis Cache</div>
+              <div class="arch-arrow">→</div>
+              <div class="arch-box">CDN</div>
+            </div>
+            <p style="font-size:.85rem;color:var(--text-dim);line-height:1.6;">Production-ready with caching and CDN. Handles 10K DAU comfortably with room to scale. Private endpoints + NSGs included.</p>
+          </div>
+          <div class="workspace-option-card">
+            <div class="option-header">
+              <span class="option-tag" style="background:rgba(255,140,66,.2);color:var(--orange);">High-Performance</span>
+              <div class="option-cost">$687<small>/mo</small></div>
+            </div>
+            <div class="arch-diagram">
+              <div class="arch-box">AKS (3 nodes)</div>
+              <div class="arch-arrow">→</div>
+              <div class="arch-box">PostgreSQL (HA)</div>
+              <div class="arch-arrow">→</div>
+              <div class="arch-box">Redis Premium</div>
+              <div class="arch-arrow">→</div>
+              <div class="arch-box">Front Door + WAF</div>
+            </div>
+            <p style="font-size:.85rem;color:var(--text-dim);line-height:1.6;">Enterprise-grade with high availability, global failover, and built-in WAF. Scales to 100K+ DAU. Zero-downtime deployments.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -246,73 +453,100 @@ footer{background:var(--navy-light);border-top:1px solid var(--glass-border);pad
 <!-- FEATURES -->
 <section id="features">
   <div class="container">
-    <div class="reveal" style="text-align:center">
+    <div class="section-header reveal">
       <div class="section-label">Features</div>
-      <h2 class="section-title">Everything You Need to Ship Fast</h2>
-      <p class="section-sub" style="margin:0 auto">Built for developers and DevOps teams who value their time.</p>
+      <h2 class="section-title">Everything a Solution Architect Would Do</h2>
+      <p class="section-subtitle">Replacing $200/hr consultants with AI that never sleeps.</p>
     </div>
     <div class="features-grid">
-      <div class="feature-card reveal">
-        <div class="feature-icon"><i class="fa-solid fa-language"></i></div>
-        <h3>Natural Language to CLI</h3>
-        <p>Describe infrastructure in everyday language. Our AI understands context, abbreviations, and even vague requests.</p>
+      <div class="feature reveal">
+        <span class="feature-emoji">🧠</span>
+        <h3>Multi-Option Proposals</h3>
+        <p>Get 2-3 complete architecture options for every request. Compare trade-offs and pick what fits your needs.</p>
       </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
-        <h3>Multi-Resource Provisioning</h3>
-        <p>Deploy complex stacks — VMs, databases, networking, storage — all from a single natural language prompt.</p>
+      <div class="feature reveal">
+        <span class="feature-emoji">💰</span>
+        <h3>Real-Time Azure Pricing</h3>
+        <p>Live cost estimates using Azure Retail Prices API. See exact monthly costs before deploying anything.</p>
       </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon"><i class="fa-solid fa-calculator"></i></div>
-        <h3>Cost Estimation</h3>
-        <p>See estimated monthly costs before you provision. No surprise bills. Budget-aware infrastructure planning.</p>
+      <div class="feature reveal">
+        <span class="feature-emoji">🔍</span>
+        <h3>Infrastructure Awareness</h3>
+        <p>Scans your existing Azure resources and proposes architectures that integrate with what you already have.</p>
       </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon"><i class="fa-solid fa-book-open"></i></div>
-        <h3>Template Library</h3>
-        <p>Start from battle-tested templates for common architectures. Web apps, microservices, data pipelines, and more.</p>
+      <div class="feature reveal">
+        <span class="feature-emoji">📊</span>
+        <h3>Cost Comparison</h3>
+        <p>Compare architectures across regions, SKUs, and configurations. Optimize for budget without sacrificing performance.</p>
       </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon"><i class="fa-solid fa-users"></i></div>
-        <h3>Team Collaboration</h3>
-        <p>Share configurations, review generated commands together, and maintain a shared history of deployments.</p>
+      <div class="feature reveal">
+        <span class="feature-emoji">🛡️</span>
+        <h3>Security-First Defaults</h3>
+        <p>Every proposal includes private endpoints, NSGs, encryption at rest, and compliance tagging by default.</p>
       </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
-        <h3>Security & Compliance</h3>
-        <p>Built-in best practices. Auto-applies security defaults, encryption, and compliance tagging to every resource.</p>
+      <div class="feature reveal">
+        <span class="feature-emoji">✅</span>
+        <h3>Mandatory Approval</h3>
+        <p>Nothing deploys without your explicit approval. Review every resource, every setting, before it touches your subscription.</p>
+      </div>
+      <div class="feature reveal">
+        <span class="feature-emoji">📋</span>
+        <h3>Full Audit Trail</h3>
+        <p>Complete history of every architecture decision, deployment, and change. Perfect for compliance and team reviews.</p>
+      </div>
+      <div class="feature reveal">
+        <span class="feature-emoji">🔄</span>
+        <h3>Rollback & Drift Detection</h3>
+        <p>One-click rollback to previous states. Automatic drift detection alerts you to manual changes outside the platform.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- DEMO -->
-<section class="demo-section" id="demo">
+<!-- TEMPLATES -->
+<section class="templates-section" id="templates">
   <div class="container">
-    <div class="reveal" style="text-align:center">
-      <div class="section-label">Interactive Demo</div>
-      <h2 class="section-title">Try It Yourself</h2>
-      <p class="section-sub" style="margin:0 auto">Type a request below and watch Azure Builder generate the CLI commands.</p>
+    <div class="section-header reveal">
+      <div class="section-label">Architecture Templates</div>
+      <h2 class="section-title">Start from Battle-Tested Patterns</h2>
+      <p class="section-subtitle">Pre-built templates for common use cases. Customize to your needs.</p>
     </div>
-    <div class="demo-wrap reveal">
-      <div class="terminal demo-terminal">
-        <div class="terminal-bar">
-          <div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div>
-          <span>live preview</span>
-        </div>
-        <div class="terminal-body">
-          <div class="demo-input-wrap">
-            <span>❯</span>
-            <input type="text" id="demo-input" placeholder="Try: create a storage account in east us" autocomplete="off">
-          </div>
-          <div id="demo-output"></div>
-          <div class="demo-suggestions">
-            <button onclick="runDemo('create a storage account in east us')">storage account</button>
-            <button onclick="runDemo('deploy a node.js web app with a custom domain')">web app</button>
-            <button onclick="runDemo('set up a kubernetes cluster with 3 nodes')">kubernetes</button>
-            <button onclick="runDemo('create a virtual network with two subnets')">virtual network</button>
-          </div>
-        </div>
+    <div class="templates-grid">
+      <div class="template-card reveal">
+        <div class="template-icon"><i class="fa-solid fa-globe"></i></div>
+        <h3>Web Application</h3>
+        <p class="template-desc">App Service, PostgreSQL/SQL, Redis, CDN. Auto-scaling, SSL, and monitoring included.</p>
+        <div class="template-price">starting from $67/mo</div>
+      </div>
+      <div class="template-card reveal">
+        <div class="template-icon"><i class="fa-solid fa-cubes"></i></div>
+        <h3>Microservices</h3>
+        <p class="template-desc">AKS, Service Bus, Cosmos DB, API Management. Container orchestration at scale.</p>
+        <div class="template-price">starting from $312/mo</div>
+      </div>
+      <div class="template-card reveal">
+        <div class="template-icon"><i class="fa-brands fa-microsoft"></i></div>
+        <h3>Teams Chatbot</h3>
+        <p class="template-desc">Azure Bot Service, App Service, Cosmos DB. Conversational AI for enterprise teams.</p>
+        <div class="template-price">starting from $47/mo</div>
+      </div>
+      <div class="template-card reveal">
+        <div class="template-icon"><i class="fa-solid fa-database"></i></div>
+        <h3>Data Pipeline</h3>
+        <p class="template-desc">Data Factory, Synapse, Event Hubs, ADLS Gen2. ETL/ELT for analytics workloads.</p>
+        <div class="template-price">starting from $189/mo</div>
+      </div>
+      <div class="template-card reveal">
+        <div class="template-icon"><i class="fa-solid fa-bolt"></i></div>
+        <h3>Serverless API</h3>
+        <p class="template-desc">Azure Functions, API Management, Cosmos DB. Event-driven, pay-per-execution.</p>
+        <div class="template-price">starting from $23/mo</div>
+      </div>
+      <div class="template-card reveal">
+        <div class="template-icon"><i class="fa-solid fa-brain"></i></div>
+        <h3>AI/ML Platform</h3>
+        <p class="template-desc">Machine Learning, Cognitive Services, GPU VMs, MLOps pipelines. Train and deploy models.</p>
+        <div class="template-price">starting from $278/mo</div>
       </div>
     </div>
   </div>
@@ -321,85 +555,143 @@ footer{background:var(--navy-light);border-top:1px solid var(--glass-border);pad
 <!-- PRICING -->
 <section id="pricing">
   <div class="container">
-    <div class="reveal" style="text-align:center">
+    <div class="section-header reveal">
       <div class="section-label">Pricing</div>
       <h2 class="section-title">Simple, Transparent Pricing</h2>
-      <p class="section-sub" style="margin:0 auto">Start free. Scale when you're ready.</p>
+      <p class="section-subtitle">Start free. Scale when you're ready. No hidden fees.</p>
     </div>
     <div class="pricing-grid">
       <div class="price-card reveal">
         <h3>Free</h3>
+        <p class="tier-desc">Perfect for exploration</p>
         <div class="price">$0<span>/mo</span></div>
-        <p class="price-sub">For individuals getting started</p>
         <ul class="price-features">
-          <li><i class="fa-solid fa-check"></i> 5 provisions per month</li>
-          <li><i class="fa-solid fa-check"></i> Basic CLI generation</li>
+          <li><i class="fa-solid fa-check"></i> 3 architecture proposals/month</li>
+          <li><i class="fa-solid fa-check"></i> 1 deployment/month</li>
+          <li><i class="fa-solid fa-check"></i> Community templates</li>
+          <li><i class="fa-solid fa-check"></i> Basic cost estimation</li>
           <li><i class="fa-solid fa-check"></i> Community support</li>
-          <li><i class="fa-solid fa-check"></i> 10 templates</li>
         </ul>
-        <button class="price-btn price-btn-outline">Get Started</button>
+        <button class="price-btn price-btn-outline" onclick="location.href='#cta'">Get Started</button>
       </div>
       <div class="price-card popular reveal">
         <div class="popular-badge">Most Popular</div>
         <h3>Pro</h3>
-        <div class="price">$29<span>/mo</span></div>
-        <p class="price-sub">For developers & small teams</p>
+        <p class="tier-desc">For teams shipping fast</p>
+        <div class="price">$49<span>/mo</span></div>
         <ul class="price-features">
-          <li><i class="fa-solid fa-check"></i> Unlimited provisions</li>
-          <li><i class="fa-solid fa-check"></i> Advanced multi-resource stacks</li>
-          <li><i class="fa-solid fa-check"></i> Cost estimation</li>
-          <li><i class="fa-solid fa-check"></i> Full template library</li>
+          <li><i class="fa-solid fa-check"></i> Unlimited architecture proposals</li>
+          <li><i class="fa-solid fa-check"></i> 20 deployments/month</li>
+          <li><i class="fa-solid fa-check"></i> All templates</li>
+          <li><i class="fa-solid fa-check"></i> Advanced cost optimization</li>
+          <li><i class="fa-solid fa-check"></i> Team collaboration (5 users)</li>
           <li><i class="fa-solid fa-check"></i> Priority support</li>
+          <li><i class="fa-solid fa-check"></i> Deployment history & rollback</li>
         </ul>
-        <button class="price-btn price-btn-primary">Start Free Trial</button>
+        <button class="price-btn price-btn-primary" onclick="location.href='#cta'">Start Free Trial</button>
       </div>
       <div class="price-card reveal">
         <h3>Enterprise</h3>
+        <p class="tier-desc">For organizations at scale</p>
         <div class="price">Custom</div>
-        <p class="price-sub">For teams at scale</p>
         <ul class="price-features">
           <li><i class="fa-solid fa-check"></i> Everything in Pro</li>
-          <li><i class="fa-solid fa-check"></i> SSO & RBAC</li>
+          <li><i class="fa-solid fa-check"></i> Unlimited deployments</li>
+          <li><i class="fa-solid fa-check"></i> SSO & RBAC integration</li>
           <li><i class="fa-solid fa-check"></i> Custom compliance policies</li>
-          <li><i class="fa-solid fa-check"></i> Dedicated account manager</li>
-          <li><i class="fa-solid fa-check"></i> SLA & audit logs</li>
+          <li><i class="fa-solid fa-check"></i> Custom architecture templates</li>
+          <li><i class="fa-solid fa-check"></i> Dedicated support + SLA</li>
+          <li><i class="fa-solid fa-check"></i> Audit logs & compliance reports</li>
         </ul>
-        <button class="price-btn price-btn-outline">Contact Sales</button>
+        <button class="price-btn price-btn-outline" onclick="location.href='mailto:sales@azurebuilder.com'">Contact Sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section class="security-section" id="security">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Security & Compliance</div>
+      <h2 class="section-title">Enterprise-Grade Security</h2>
+      <p class="section-subtitle">Your infrastructure. Your subscription. Your control.</p>
+    </div>
+    <div class="security-grid">
+      <div class="security-item reveal">
+        <div class="security-icon"><i class="fa-solid fa-key"></i></div>
+        <h4>OAuth2 + Key Vault</h4>
+        <p>No permanent credential storage. Secure token exchange with Azure Key Vault.</p>
+      </div>
+      <div class="security-item reveal">
+        <div class="security-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <h4>Tenant Isolation</h4>
+        <p>Row-level security ensures complete data isolation between organizations.</p>
+      </div>
+      <div class="security-item reveal">
+        <div class="security-icon"><i class="fa-solid fa-lock"></i></div>
+        <h4>Least Privilege</h4>
+        <p>Minimal Azure permissions requested. You control what we can access.</p>
+      </div>
+      <div class="security-item reveal">
+        <div class="security-icon"><i class="fa-solid fa-tags"></i></div>
+        <h4>Compliance Tags</h4>
+        <p>Auto-tagging for HIPAA, SOC 2, PCI-DSS, and custom compliance frameworks.</p>
+      </div>
+      <div class="security-item reveal">
+        <div class="security-icon"><i class="fa-solid fa-certificate"></i></div>
+        <h4>SOC 2 Type II</h4>
+        <p>Certification in progress. Full audit trail and compliance reporting.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- TESTIMONIALS -->
-<section class="testimonials" id="testimonials">
+<section id="testimonials">
   <div class="container">
-    <div class="reveal" style="text-align:center">
+    <div class="section-header reveal">
       <div class="section-label">Testimonials</div>
-      <h2 class="section-title">Loved by DevOps Teams</h2>
+      <h2 class="section-title">Trusted by DevOps Teams Worldwide</h2>
     </div>
-    <div class="testimonial-grid">
+    <div class="testimonials-grid">
       <div class="testimonial reveal">
-        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-        <blockquote>"We cut our infrastructure provisioning time by 80%. New engineers onboard in hours instead of weeks because they don't need to learn Azure CLI syntax."</blockquote>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">MR</div>
-          <div class="testimonial-info"><h4>Marcus Reynolds</h4><p>VP of Engineering, CloudScale</p></div>
+        <div class="testimonial-content">
+          <p class="testimonial-text">We used to spend weeks debating architecture decisions in meetings. Now we get 3 options with real costs in minutes, pick one, and ship. This tool saved us 40 hours a month.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">DS</div>
+            <div class="author-info">
+              <h4>David Singh</h4>
+              <p>DevOps Lead, TechFlow Inc.</p>
+            </div>
+          </div>
+          <div class="testimonial-metric">40 hours/month saved</div>
         </div>
       </div>
       <div class="testimonial reveal">
-        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-        <blockquote>"I used to spend 30 minutes looking up az commands. Now I just describe what I want and it's done in seconds. This is how infrastructure should work."</blockquote>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">SP</div>
-          <div class="testimonial-info"><h4>Sarah Park</h4><p>Senior DevOps Engineer, Finova</p></div>
+        <div class="testimonial-content">
+          <p class="testimonial-text">The cost comparison feature alone is worth it. We were over-provisioning resources for years. Azure Builder showed us we could cut costs by 30% without sacrificing performance.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">JC</div>
+            <div class="author-info">
+              <h4>Jessica Chen</h4>
+              <p>CTO, DataVault Solutions</p>
+            </div>
+          </div>
+          <div class="testimonial-metric">30% cost reduction</div>
         </div>
       </div>
       <div class="testimonial reveal">
-        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-        <blockquote>"The cost estimation alone saved us thousands. We finally have visibility into infrastructure costs before we deploy, not after the bill arrives."</blockquote>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">JT</div>
-          <div class="testimonial-info"><h4>James Torres</h4><p>CTO, DataMesh Labs</p></div>
+        <div class="testimonial-content">
+          <p class="testimonial-text">I'm a founder with zero DevOps experience. I described what I needed for our SaaS app, picked the balanced option, and had production infrastructure deployed in 15 minutes. Absolutely game-changing.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">MR</div>
+            <div class="author-info">
+              <h4>Marcus Rodriguez</h4>
+              <p>Founder, CloudSync</p>
+            </div>
+          </div>
+          <div class="testimonial-metric">Deployed in 15 min</div>
         </div>
       </div>
     </div>
@@ -409,35 +701,97 @@ footer{background:var(--navy-light);border-top:1px solid var(--glass-border);pad
 <!-- FAQ -->
 <section id="faq">
   <div class="container">
-    <div class="reveal" style="text-align:center">
+    <div class="section-header reveal">
       <div class="section-label">FAQ</div>
       <h2 class="section-title">Common Questions</h2>
     </div>
     <div class="faq-list">
       <div class="faq-item reveal">
-        <div class="faq-q" onclick="toggleFaq(this)">Does Azure Builder have access to my Azure account?<i class="fa-solid fa-chevron-down"></i></div>
-        <div class="faq-a"><p>Only when you explicitly connect it. We use OAuth with minimal permissions. You can review and approve every command before it runs — nothing executes without your confirmation.</p></div>
+        <div class="faq-q" onclick="toggleFaq(this)">
+          How does pricing estimation work?
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-a">
+          <p>We use the Azure Retail Prices API to fetch real-time pricing for every resource in your proposed architecture. Costs are calculated based on the region, SKU, and estimated usage patterns you specify. Prices update automatically as Azure's pricing changes.</p>
+        </div>
       </div>
       <div class="faq-item reveal">
-        <div class="faq-q" onclick="toggleFaq(this)">What if the AI generates incorrect commands?<i class="fa-solid fa-chevron-down"></i></div>
-        <div class="faq-a"><p>Every generated command goes through validation before execution. You always get a review step. Our AI is trained on Azure's official documentation and continuously improved with user feedback.</p></div>
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Is it safe to connect my Azure subscription?
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-a">
+          <p>Absolutely. We use OAuth2 authentication with minimal permissions. We never store your credentials permanently—everything is handled through secure token exchange. You can revoke access at any time from your Azure portal. All deployments require your explicit approval.</p>
+        </div>
       </div>
       <div class="faq-item reveal">
-        <div class="faq-q" onclick="toggleFaq(this)">Can I use Azure Builder with existing infrastructure?<i class="fa-solid fa-chevron-down"></i></div>
-        <div class="faq-a"><p>Absolutely. Azure Builder can scan your existing resource groups and understand your current setup. It generates commands that work alongside what you already have deployed.</p></div>
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Can I modify the generated architecture before deploying?
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-a">
+          <p>Yes! Every architecture proposal is fully customizable. You can adjust SKUs, regions, configurations, and individual resources before deployment. Think of AI proposals as a starting point—you have complete control over the final infrastructure.</p>
+        </div>
       </div>
       <div class="faq-item reveal">
-        <div class="faq-q" onclick="toggleFaq(this)">Is my data secure?<i class="fa-solid fa-chevron-down"></i></div>
-        <div class="faq-a"><p>We never store your Azure credentials. All communication is encrypted end-to-end. We're SOC 2 Type II compliant, and our infrastructure runs on Azure itself with enterprise-grade security.</p></div>
+        <div class="faq-q" onclick="toggleFaq(this)">
+          What if a deployment fails?
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-a">
+          <p>Deployments use Azure Resource Manager's transactional guarantees. If any part of the deployment fails, the entire stack rolls back automatically. You'll get detailed error logs, and our support team can help diagnose issues on Pro and Enterprise plans.</p>
+        </div>
       </div>
       <div class="faq-item reveal">
-        <div class="faq-q" onclick="toggleFaq(this)">Can I export the generated commands?<i class="fa-solid fa-chevron-down"></i></div>
-        <div class="faq-a"><p>Yes! Export as shell scripts, ARM templates, Bicep files, or Terraform configurations. Use Azure Builder to generate, then integrate into your existing CI/CD pipeline.</p></div>
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Do I need Azure expertise to use this?
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-a">
+          <p>Not at all. That's the whole point. You describe what you need in plain English, and Azure Builder handles the architecture, resource selection, and configuration. Beginners can deploy production-grade infrastructure in minutes. Experts save time by skipping the manual design work.</p>
+        </div>
       </div>
       <div class="faq-item reveal">
-        <div class="faq-q" onclick="toggleFaq(this)">Do you support Azure Government and sovereign clouds?<i class="fa-solid fa-chevron-down"></i></div>
-        <div class="faq-a"><p>Enterprise plans include support for Azure Government, Azure China, and Azure Germany. Contact our sales team for sovereign cloud configurations.</p></div>
+        <div class="faq-q" onclick="toggleFaq(this)">
+          What Azure services are supported?
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-a">
+          <p>We support 80+ Azure services including App Service, AKS, Functions, Cosmos DB, SQL Database, PostgreSQL, Storage, Networking, AI/ML services, and more. If a service isn't supported yet, let us know—we prioritize based on customer requests.</p>
+        </div>
       </div>
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Can I use existing resources in my subscription?
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-a">
+          <p>Yes! Azure Builder scans your existing infrastructure and proposes architectures that integrate with what you already have. It won't duplicate resources unnecessarily and will reuse existing VNets, storage accounts, and other shared infrastructure when appropriate.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          What's included in the audit trail?
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-a">
+          <p>Every architecture proposal, deployment, configuration change, and user action is logged with timestamps and user attribution. Pro and Enterprise plans include full audit exports for compliance reviews. Enterprise plans get customizable compliance reports for SOC 2, HIPAA, and other frameworks.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="container">
+    <div class="cta-content reveal">
+      <h2>Stop Guessing. Start Architecting.</h2>
+      <p>Join hundreds of teams building better Azure infrastructure with AI.</p>
+      <form class="cta-form" onsubmit="event.preventDefault();alert('Sign up functionality coming soon!');">
+        <input type="email" placeholder="Enter your work email" required>
+        <button type="submit">Start Free Trial</button>
+      </form>
     </div>
   </div>
 </section>
@@ -447,8 +801,8 @@ footer{background:var(--navy-light);border-top:1px solid var(--glass-border);pad
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="logo"><i class="fa-solid fa-cloud"></i> Azure Builder</div>
-        <p>AI-powered infrastructure provisioning. Describe it, deploy it.</p>
+        <div class="logo"><i class="fa-solid fa-brain-circuit"></i> Azure Builder</div>
+        <p>Your AI Solution Architect for Azure. Multiple architecture options, real-time pricing, one-click deployment.</p>
         <div class="social-links">
           <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
           <a href="#" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
@@ -459,184 +813,96 @@ footer{background:var(--navy-light);border-top:1px solid var(--glass-border);pad
       <div class="footer-col">
         <h4>Product</h4>
         <a href="#features">Features</a>
+        <a href="#templates">Templates</a>
         <a href="#pricing">Pricing</a>
-        <a href="#">Changelog</a>
         <a href="#">Documentation</a>
+        <a href="#">Changelog</a>
+        <a href="#">API Reference</a>
       </div>
       <div class="footer-col">
         <h4>Company</h4>
-        <a href="#">About</a>
+        <a href="#">About Us</a>
         <a href="#">Blog</a>
         <a href="#">Careers</a>
+        <a href="#">Press Kit</a>
         <a href="#">Contact</a>
       </div>
       <div class="footer-col">
-        <h4>Stay Updated</h4>
-        <p style="color:var(--text-dim);font-size:.9rem;margin-bottom:.5rem">Get product updates and tips. No spam.</p>
-        <form class="newsletter-form" onsubmit="event.preventDefault();this.querySelector('button').textContent='Subscribed!';this.querySelector('input').value=''">
-          <input type="email" placeholder="you@email.com" required>
-          <button type="submit">Subscribe</button>
-        </form>
+        <h4>Resources</h4>
+        <a href="#">Help Center</a>
+        <a href="#">Community</a>
+        <a href="#">Case Studies</a>
+        <a href="#">Architecture Guides</a>
+        <a href="#">Status Page</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Security</a>
+        <a href="#">Compliance</a>
+        <a href="#">Cookie Policy</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2026 Azure Builder. All rights reserved. <a href="#">Privacy</a> · <a href="#">Terms</a></p>
+      <p>&copy; 2026 Azure Builder. All rights reserved. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Security</a></p>
     </div>
   </div>
 </footer>
 
 <script>
-// Nav scroll
+// Smooth scroll nav
 const nav=document.getElementById('nav');
-window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>50)});
+window.addEventListener('scroll',()=>{
+  nav.classList.toggle('scrolled',window.scrollY>50);
+});
 
-// Hamburger
-document.getElementById('hamburger').addEventListener('click',()=>{document.getElementById('navLinks').classList.toggle('open')});
+// Hamburger menu
+document.getElementById('hamburger').addEventListener('click',()=>{
+  document.getElementById('navLinks').classList.toggle('open');
+});
 
-// Scroll reveal
-const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}})},{threshold:.1,rootMargin:'0px 0px -50px 0px'});
+// Scroll reveal animations
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+},{threshold:0.1,rootMargin:'0px 0px -80px 0px'});
+
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 
-// Hero terminal animation
-const heroLines=[
-  {type:'comment',text:'# You type natural language...'},
-  {type:'prompt',text:'❯ create a storage account in east us with blob access'},
-  {type:'blank'},
-  {type:'comment',text:'# Azure Builder generates:'},
-  {type:'cmd',text:'<span class="t-cmd">az</span> group create <span class="t-flag">--name</span> <span class="t-str">rg-storage-eastus</span> <span class="t-flag">--location</span> <span class="t-str">eastus</span>'},
-  {type:'cmd',text:'<span class="t-cmd">az</span> storage account create <span class="t-flag">--name</span> <span class="t-str">stbuilder0eastus</span> \\'},
-  {type:'cmd',text:'  <span class="t-flag">--resource-group</span> <span class="t-str">rg-storage-eastus</span> <span class="t-flag">--sku</span> <span class="t-str">Standard_LRS</span> \\'},
-  {type:'cmd',text:'  <span class="t-flag">--kind</span> <span class="t-str">StorageV2</span> <span class="t-flag">--allow-blob-public-access</span> <span class="t-str">true</span>'},
-  {type:'blank'},
-  {type:'output',text:'<span class="t-output">✓ Resource group created</span>'},
-  {type:'output',text:'<span class="t-output">✓ Storage account provisioned in 12s</span>'},
-  {type:'output',text:'<span style="color:var(--green)">✓ All resources deployed successfully</span>'},
-];
-function animateHero(){
-  const body=document.getElementById('heroTerminalBody');
-  body.innerHTML='';
-  heroLines.forEach((line,i)=>{
-    setTimeout(()=>{
-      const div=document.createElement('div');
-      div.className='terminal-line';
-      div.style.animationDelay='.05s';
-      if(line.type==='blank'){div.innerHTML='&nbsp;'}
-      else if(line.type==='comment'){div.innerHTML=`<span class="t-comment">${line.text}</span>`}
-      else if(line.type==='prompt'){div.innerHTML=`<span class="t-prompt">${line.text}</span>`}
-      else if(line.type==='output'){div.innerHTML=line.text}
-      else{div.innerHTML=line.text}
-      body.appendChild(div);
-    },i*280);
+// FAQ toggle
+function toggleFaq(el){
+  const item=el.parentElement;
+  const wasOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+  if(!wasOpen)item.classList.add('open');
+}
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor=>{
+  anchor.addEventListener('click',function(e){
+    const target=document.querySelector(this.getAttribute('href'));
+    if(target){
+      e.preventDefault();
+      target.scrollIntoView({behavior:'smooth',block:'start'});
+      document.getElementById('navLinks').classList.remove('open');
+    }
   });
-}
-animateHero();
-setInterval(animateHero,heroLines.length*280+4000);
+});
 
-// Demo terminal
-const demoMap={
-  'create a storage account in east us':[
-    '# Analyzing request...',
-    '',
-    'az group create --name rg-storage-001 --location eastus',
-    'az storage account create --name mystorageacct001 \\',
-    '  --resource-group rg-storage-001 --sku Standard_LRS \\',
-    '  --kind StorageV2 --min-tls-version TLS1_2',
-    '',
-    '✓ Estimated cost: ~$0.018/GB/month',
-    '✓ 2 resources ready to provision'
-  ],
-  'deploy a node.js web app with a custom domain':[
-    '# Analyzing request...',
-    '',
-    'az appservice plan create --name plan-webapp \\',
-    '  --resource-group rg-webapp --sku B1 --is-linux',
-    'az webapp create --name my-node-app \\',
-    '  --resource-group rg-webapp --plan plan-webapp \\',
-    '  --runtime "NODE:20-lts"',
-    'az webapp config hostname add \\',
-    '  --webapp-name my-node-app --resource-group rg-webapp \\',
-    '  --hostname app.yourdomain.com',
-    '',
-    '✓ Estimated cost: ~$13.14/month',
-    '✓ 3 resources ready to provision'
-  ],
-  'set up a kubernetes cluster with 3 nodes':[
-    '# Analyzing request...',
-    '',
-    'az group create --name rg-aks --location eastus',
-    'az aks create --name aks-cluster-001 \\',
-    '  --resource-group rg-aks --node-count 3 \\',
-    '  --node-vm-size Standard_DS2_v2 \\',
-    '  --network-plugin azure --generate-ssh-keys',
-    'az aks get-credentials --name aks-cluster-001 \\',
-    '  --resource-group rg-aks',
-    '',
-    '✓ Estimated cost: ~$219.00/month',
-    '✓ Cluster with 3 nodes ready to provision'
-  ],
-  'create a virtual network with two subnets':[
-    '# Analyzing request...',
-    '',
-    'az network vnet create --name vnet-main \\',
-    '  --resource-group rg-network --location eastus \\',
-    '  --address-prefix 10.0.0.0/16',
-    'az network vnet subnet create --name subnet-frontend \\',
-    '  --vnet-name vnet-main --resource-group rg-network \\',
-    '  --address-prefix 10.0.1.0/24',
-    'az network vnet subnet create --name subnet-backend \\',
-    '  --vnet-name vnet-main --resource-group rg-network \\',
-    '  --address-prefix 10.0.2.0/24',
-    '',
-    '✓ Estimated cost: Free (VNet)',
-    '✓ 3 resources ready to provision'
-  ]
-};
-
-let demoRunning=false;
-function runDemo(text){
-  if(demoRunning)return;
-  document.getElementById('demo-input').value=text;
-  execDemo(text);
-}
-document.getElementById('demo-input').addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&!demoRunning){
-    execDemo(e.target.value);
+// Hero mockup typing animation restart
+setInterval(()=>{
+  const typing=document.querySelector('.typing-animation');
+  if(typing){
+    typing.style.animation='none';
+    setTimeout(()=>typing.style.animation='blink 1s step-end infinite',10);
   }
-});
-function execDemo(input){
-  if(demoRunning)return;
-  demoRunning=true;
-  const output=document.getElementById('demo-output');
-  output.innerHTML='';
-  const key=Object.keys(demoMap).find(k=>input.toLowerCase().includes(k.split(' ').slice(1,3).join(' ')))||Object.keys(demoMap)[0];
-  const lines=demoMap[key];
-  lines.forEach((line,i)=>{
-    setTimeout(()=>{
-      const div=document.createElement('div');
-      div.style.fontFamily="'Courier New',monospace";
-      div.style.fontSize='.85rem';
-      div.style.marginBottom='.25rem';
-      if(!line){div.innerHTML='&nbsp;'}
-      else if(line.startsWith('#')){div.style.color='#6a737d';div.textContent=line}
-      else if(line.startsWith('✓')){div.style.color='var(--green)';div.textContent=line}
-      else{div.style.color='var(--blue-light)';div.textContent=line}
-      div.style.opacity='0';div.style.animation='fadeInLine .2s forwards';
-      output.appendChild(div);
-      if(i===lines.length-1)demoRunning=false;
-    },i*180);
-  });
-}
-
-// FAQ
-function toggleFaq(el){el.parentElement.classList.toggle('open')}
-
-// Smooth scroll for nav links
-document.querySelectorAll('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click',e=>{
-    const t=document.querySelector(a.getAttribute('href'));
-    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});document.getElementById('navLinks').classList.remove('open')}
-  });
-});
+},5000);
 </script>
+
 </body>
 </html>
