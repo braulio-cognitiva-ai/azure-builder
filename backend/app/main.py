@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import auth, projects
+from app.api import auth, projects, proposals, deployments, templates, pricing, azure_connections, audit
 from app.config import settings
 from app.database import close_db, init_db
 
@@ -104,6 +104,12 @@ async def general_exception_handler(request, exc):
 # Include routers
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(projects.router, prefix="/api/v1/projects", tags=["projects"])
+app.include_router(proposals.router, prefix="/api/v1", tags=["proposals"])
+app.include_router(deployments.router, prefix="/api/v1", tags=["deployments"])
+app.include_router(templates.router, prefix="/api/v1", tags=["templates"])
+app.include_router(pricing.router, prefix="/api/v1", tags=["pricing"])
+app.include_router(azure_connections.router, prefix="/api/v1", tags=["azure"])
+app.include_router(audit.router, prefix="/api/v1", tags=["audit"])
 
 
 if __name__ == "__main__":

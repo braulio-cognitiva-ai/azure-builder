@@ -39,7 +39,7 @@ async def create_project(
         description=project_data.description,
         created_by=current_user.id,
         tags=project_data.tags,
-        metadata=project_data.metadata,
+        project_metadata=project_data.project_metadata,
     )
 
     db.add(project)
@@ -96,8 +96,8 @@ async def update_project(
         project.description = project_data.description
     if project_data.tags is not None:
         project.tags = project_data.tags
-    if project_data.metadata is not None:
-        project.metadata = project_data.metadata
+    if project_data.project_metadata is not None:
+        project.project_metadata = project_data.project_metadata
 
     await db.commit()
     await db.refresh(project)

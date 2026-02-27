@@ -1,328 +1,404 @@
-"""AI Engine for natural language → Azure CLI translation."""
-import json
-import re
-import shlex
-from dataclasses import dataclass
-from enum import Enum
-from typing import Any, Optional
+"""AI Engine Service - The Brain of Azure Builder.
 
-from openai import AsyncAzureOpenAI
+This service translates natural language requests into Azure architecture
+proposals with multiple options, each with diagrams, cost estimates, and recommendations.
+"""
+import json
+import uuid
+from typing import Optional
+from openai import AsyncOpenAI
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.models import (
+    ArchitectureProposal,
+    ProposalOption,
+    ProposalStatus,
+    Project
+)
+from app.schemas.proposal import (
+    CostEstimate,
+    ResourceDefinition,
+    ProsCons,
+    ProposalOptionCreate
+)
+from app.services.pricing_service import PricingService
 
 
-class RiskLevel(str, Enum):
-    """Command risk level."""
+# =============================================================================
+# SYSTEM PROMPT - The Core IP of Azure Builder
+# =============================================================================
 
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
+SYSTEM_PROMPT = """You are an expert Azure Solution Architect with deep knowledge of:
+- Azure Well-Architected Framework (reliability, security, cost optimization, operational excellence, performance)
+- Azure services, SKUs, pricing, and regional availability
+- Common architecture patterns (web apps, microservices, data platforms, AI/ML)
+- Infrastructure-as-Code with Bicep and ARM templates
 
+Your job: Given a user's natural language request, generate 2-3 architecture options with different trade-offs.
 
-@dataclass
-class Command:
-    """Single Azure CLI command."""
+**RULES:**
 
-    command: str
-    description: str
-    risk_level: RiskLevel
-    continue_on_error: bool = False
+1. **Output Structure:** Return ONLY valid JSON matching this schema:
+   {
+     "options": [
+       {
+         "option_number": 1,
+         "name": "Option Name (e.g., Basic Web App)",
+         "description": "Detailed description of this architecture approach",
+         "architecture_diagram": "ASCII diagram showing components and connections",
+         "resources": [
+           {
+             "type": "App Service",
+             "name": "app-myapp-prod",
+             "sku": "P1V2",
+             "region": "eastus",
+             "properties": {
+               "runtime": "dotnet",
+               "always_on": true
+             }
+           }
+         ],
+         "pros": ["Fast deployment", "Cost-effective for small traffic"],
+         "cons": ["Limited scalability", "No built-in caching"]
+       }
+     ]
+   }
 
+2. **Architecture Diagrams:**
+   - Use ASCII art with boxes, arrows, and labels
+   - Show data flow and dependencies
+   - Keep it readable (max 80 chars wide)
+   - Example:
+     ```
+     ┌────────────┐      ┌──────────────┐      ┌──────────┐
+     │   Client   │─────▶│  App Service │─────▶│   SQL    │
+     └────────────┘      │   (P1V2)     │      │ Database │
+                         └──────────────┘      └──────────┘
+                                │
+                                ▼
+                         ┌──────────────┐
+                         │   Storage    │
+                         │   Account    │
+                         └──────────────┘
+     ```
 
-@dataclass
-class ExecutionPlan:
-    """Complete execution plan with commands and metadata."""
+3. **Resource Naming:**
+   - Follow Azure conventions: lowercase, hyphens allowed, 3-24 chars
+   - Use prefixes: `app-`, `sql-`, `st-` (storage), `kv-` (key vault), etc.
+   - Include environment suffix: `-dev`, `-prod`
+   - Example: `app-ecommerce-prod`, `sql-orders-prod`
 
-    commands: list[Command]
-    requires_approval: bool
-    estimated_duration_minutes: int
-    risk_level: RiskLevel
-    warnings: list[str]
+4. **SKU Selection:**
+   - Option 1 (Basic/Standard): Lowest cost, basic features, suitable for dev/small prod
+   - Option 2 (Premium): Balanced cost/performance, auto-scaling, high availability
+   - Option 3 (Enterprise/Advanced): Maximum performance, multi-region, advanced features
+   - Always specify exact SKU names (e.g., "P1V2", "S1", "GP_Gen5_2")
 
+5. **Security Defaults:**
+   - Always propose: Private endpoints, NSGs, managed identities, Key Vault for secrets
+   - Enable: TLS/HTTPS, Azure AD auth, diagnostic logging
+   - Avoid: Public endpoints without justification, weak authentication
 
-# System prompt for Azure CLI generation
-SYSTEM_PROMPT = """You are an Azure infrastructure expert that converts natural language requests into Azure CLI commands.
+6. **Regions:**
+   - Default to `eastus` unless user specifies otherwise
+   - For multi-region: `eastus` + `westus2` or `westeurope`
+   - Consider data residency (GDPR for EU customers)
 
-RULES:
-1. Output ONLY valid Azure CLI commands (bash syntax)
-2. Use long-form flags (--resource-group, not -g) for clarity
-3. Include --output json for commands that return data
-4. For multi-step operations, output commands in execution order
-5. Never use placeholders - ask for missing information instead
-6. Prefer idempotent operations (check existence before create)
-7. Add comments with # for complex operations
-8. Use variables for values that will be reused
+7. **Cost Consciousness:**
+   - Basic option: <$100/month target
+   - Premium option: $100-500/month
+   - Enterprise option: >$500/month
+   - Mention reserved instances / savings plans where applicable
 
-SAFETY:
-- NEVER delete resource groups without explicit user confirmation
-- NEVER delete production-tagged resources
-- ALWAYS check if resource exists before destructive operations
-- Use --yes flags only when safe
-- Validate resource names follow Azure naming conventions
+8. **Completeness:**
+   - Include ALL necessary resources (networking, monitoring, identity)
+   - Don't forget: Application Insights, Log Analytics, NSGs, private endpoints
+   - If user wants AI: Suggest Azure OpenAI, Cognitive Services, or Azure ML
 
-OUTPUT FORMAT (JSON):
+9. **Context Awareness:**
+   - If user mentions existing infrastructure, integrate with it
+   - If budget is specified, stay within limits
+   - If compliance mentioned (HIPAA, SOC2), add required controls
+
+10. **Validation:**
+    - Ensure resource names are unique across options
+    - Verify SKUs exist and are available in specified regions
+    - Check dependencies (e.g., App Service requires App Service Plan)
+
+**EXAMPLE INPUT:**
+"I need a web application that handles user auth and stores data in SQL. Budget is around $200/month."
+
+**EXAMPLE OUTPUT:**
 {
-  "commands": [
+  "options": [
     {
-      "command": "az group create --name rg-app-prod --location eastus",
-      "description": "Create resource group for production environment",
-      "risk_level": "low",
-      "continue_on_error": false
+      "option_number": 1,
+      "name": "Basic Web App with SQL",
+      "description": "Single-region deployment with App Service Basic tier and SQL Database Basic tier. Suitable for development and small production workloads with <1000 daily users. No auto-scaling or redundancy.",
+      "architecture_diagram": "┌─────────┐\\n│ Client  │\\n└────┬────┘\\n     │\\n     ▼\\n┌─────────────────┐\\n│  App Service    │\\n│  (B1)           │\\n│  East US        │\\n└────┬────────────┘\\n     │\\n     ▼\\n┌─────────────────┐\\n│ SQL Database    │\\n│ (Basic, 5 DTU)  │\\n│ East US         │\\n└─────────────────┘",
+      "resources": [
+        {"type": "App Service Plan", "name": "plan-webapp-prod", "sku": "B1", "region": "eastus", "properties": {}},
+        {"type": "App Service", "name": "app-webapp-prod", "sku": "B1", "region": "eastus", "properties": {"runtime": "node", "always_on": false}},
+        {"type": "SQL Server", "name": "sql-webapp-prod", "sku": "Basic", "region": "eastus", "properties": {"admin_user": "sqladmin"}},
+        {"type": "SQL Database", "name": "db-webapp-prod", "sku": "Basic", "region": "eastus", "properties": {"max_size_gb": 2}}
+      ],
+      "pros": ["Lowest cost (~$55/month)", "Simple architecture", "Easy to deploy", "Managed services reduce ops overhead"],
+      "cons": ["No auto-scaling", "Single point of failure", "Limited to 1 GB RAM", "5 DTU may be slow under load"]
     }
-  ],
-  "requires_approval": false,
-  "estimated_duration_minutes": 2,
-  "warnings": []
+  ]
 }
 
-RISK LEVELS:
-- low: Create resources, read operations, safe updates
-- medium: Updates that might cause downtime, delete non-critical resources
-- high: Delete resource groups, delete production resources, RBAC changes
-
-If information is missing or unclear, respond with:
-{
-  "error": "missing_information",
-  "message": "I need more information to proceed: ...",
-  "questions": ["What should the resource group name be?", "Which Azure region?"]
-}
+**NOW PROCESS THE USER REQUEST BELOW AND GENERATE OPTIONS:**
 """
 
-# Dangerous command patterns that require explicit approval
-DANGER_PATTERNS = [
-    r"az\s+group\s+delete",  # Resource group deletion
-    r"az\s+.*\s+delete\s+.*--force",  # Force deletion
-    r"az\s+ad\s+",  # Active Directory operations
-    r"az\s+role\s+assignment\s+delete",  # RBAC changes
-    r"--force-string",  # Bypass type validation
-]
 
-# Blocked command patterns (never allow)
-BLOCKED_PATTERNS = [
-    r";|\||&&|`|\$\(",  # Shell injection attempts
-    r"rm\s+-rf",  # Dangerous shell commands
-    r"curl.*\|.*sh",  # Pipe to shell
-]
-
-
-class AIEngine:
-    """AI Engine for NL → Azure CLI translation."""
-
-    def __init__(self):
-        """Initialize AI engine with Azure OpenAI client."""
-        self.client = AsyncAzureOpenAI(
-            api_key=settings.azure_openai_api_key,
-            api_version=settings.azure_openai_api_version,
-            azure_endpoint=settings.azure_openai_endpoint,
-        )
-
-    async def translate(
-        self,
-        user_message: str,
-        conversation_history: Optional[list[dict[str, str]]] = None,
-        tenant_context: Optional[dict[str, Any]] = None,
-    ) -> ExecutionPlan:
-        """
-        Translate natural language to Azure CLI commands.
+class AIEngineService:
+    """AI Engine Service for architecture generation."""
+    
+    def __init__(self, session: AsyncSession):
+        """Initialize AI engine service.
         
         Args:
-            user_message: User's natural language request
-            conversation_history: Previous messages in conversation
-            tenant_context: Optional tenant-specific context (existing resources, etc.)
-            
-        Returns:
-            ExecutionPlan with commands and metadata
-            
-        Raises:
-            ValueError: If AI cannot generate valid commands
+            session: Database session
         """
-        # Sanitize input
-        user_message = self._sanitize_input(user_message)
-
-        # Build context prompt
-        context_prompt = self._build_context_prompt(tenant_context)
-
-        # Prepare messages
-        messages = [
-            {"role": "system", "content": SYSTEM_PROMPT + context_prompt}
-        ]
-
-        # Add conversation history (last N messages)
-        if conversation_history:
-            messages.extend(conversation_history[-settings.ai_max_conversation_history:])
-
-        # Add current user message
-        messages.append({"role": "user", "content": user_message})
-
-        # Call Azure OpenAI
-        response = await self.client.chat.completions.create(
-            model=settings.azure_openai_deployment_name,
-            messages=messages,
-            temperature=settings.ai_temperature,
-            max_tokens=settings.ai_max_tokens,
-            response_format={"type": "json_object"},
-        )
-
-        # Parse response
-        content = response.choices[0].message.content
-        if not content:
-            raise ValueError("Empty response from AI")
-
-        try:
-            result = json.loads(content)
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON response from AI: {e}")
-
-        # Check for missing information
-        if "error" in result:
-            raise ValueError(result.get("message", "Unable to generate commands"))
-
-        # Parse commands
-        commands = [
-            Command(
-                command=cmd["command"],
-                description=cmd["description"],
-                risk_level=RiskLevel(cmd.get("risk_level", "low")),
-                continue_on_error=cmd.get("continue_on_error", False),
+        self.session = session
+        self.pricing_service = PricingService(session)
+        
+        # Initialize OpenAI client
+        if settings.azure_openai_endpoint and settings.azure_openai_api_key:
+            self.client = AsyncOpenAI(
+                api_key=settings.azure_openai_api_key,
+                base_url=f"{settings.azure_openai_endpoint}/openai/deployments/{settings.azure_openai_deployment_name}",
+                api_version=settings.azure_openai_api_version
             )
-            for cmd in result.get("commands", [])
-        ]
-
-        # Validate commands
-        validation_result = self._validate_commands(commands)
-        if not validation_result["valid"]:
-            raise ValueError(f"Invalid commands: {', '.join(validation_result['errors'])}")
-
-        # Assess overall risk
-        risk_level = self._assess_risk(commands)
-
-        # Determine if approval is required
-        requires_approval = (
-            risk_level in (RiskLevel.MEDIUM, RiskLevel.HIGH)
-            or result.get("requires_approval", False)
-        )
-
-        return ExecutionPlan(
-            commands=commands,
-            requires_approval=requires_approval,
-            estimated_duration_minutes=result.get("estimated_duration_minutes", 5),
-            risk_level=risk_level,
-            warnings=result.get("warnings", []),
-        )
-
-    def _sanitize_input(self, text: str) -> str:
-        """
-        Sanitize user input to prevent prompt injection.
-        
-        Args:
-            text: User input text
-            
-        Returns:
-            Sanitized text
-        """
-        # Remove potential prompt injection attempts
-        dangerous_patterns = [
-            r"ignore previous instructions",
-            r"system:",
-            r"assistant:",
-            r"<\|.*?\|>",  # Special tokens
-        ]
-
-        for pattern in dangerous_patterns:
-            text = re.sub(pattern, "[FILTERED]", text, flags=re.IGNORECASE)
-
-        # Limit length to prevent DoS
-        return text[:5000]
-
-    def _build_context_prompt(self, tenant_context: Optional[dict[str, Any]]) -> str:
-        """
-        Build context prompt with tenant-specific information.
-        
-        Args:
-            tenant_context: Optional tenant context data
-            
-        Returns:
-            Context prompt string
-        """
-        if not tenant_context:
-            return ""
-
-        context_parts = ["\n\nCONTEXT:"]
-
-        if "existing_resources" in tenant_context:
-            context_parts.append(
-                f"Existing resources: {', '.join(tenant_context['existing_resources'])}"
-            )
-
-        if "default_location" in tenant_context:
-            context_parts.append(
-                f"Default Azure region: {tenant_context['default_location']}"
-            )
-
-        if "naming_convention" in tenant_context:
-            context_parts.append(
-                f"Naming convention: {tenant_context['naming_convention']}"
-            )
-
-        return "\n".join(context_parts)
-
-    def _validate_commands(self, commands: list[Command]) -> dict[str, Any]:
-        """
-        Validate generated commands for safety and syntax.
-        
-        Args:
-            commands: List of commands to validate
-            
-        Returns:
-            Validation result with errors if any
-        """
-        errors = []
-
-        for i, cmd in enumerate(commands):
-            # Check for blocked patterns
-            for pattern in BLOCKED_PATTERNS:
-                if re.search(pattern, cmd.command):
-                    errors.append(
-                        f"Command {i+1}: Blocked pattern detected (potential security risk)"
-                    )
-
-            # Validate it's an Azure CLI command
-            if not cmd.command.strip().startswith("az "):
-                errors.append(f"Command {i+1}: Must start with 'az '")
-
-            # Try to parse command with shlex (detect malformed commands)
-            try:
-                shlex.split(cmd.command)
-            except ValueError as e:
-                errors.append(f"Command {i+1}: Invalid syntax - {e}")
-
-        return {
-            "valid": len(errors) == 0,
-            "errors": errors,
-        }
-
-    def _assess_risk(self, commands: list[Command]) -> RiskLevel:
-        """
-        Assess overall risk level for a set of commands.
-        
-        Args:
-            commands: List of commands
-            
-        Returns:
-            Overall risk level (highest among all commands)
-        """
-        risk_levels = [cmd.risk_level for cmd in commands]
-
-        # Check for dangerous patterns
-        for cmd in commands:
-            for pattern in DANGER_PATTERNS:
-                if re.search(pattern, cmd.command, re.IGNORECASE):
-                    return RiskLevel.HIGH
-
-        # Return highest risk level
-        if RiskLevel.HIGH in risk_levels:
-            return RiskLevel.HIGH
-        elif RiskLevel.MEDIUM in risk_levels:
-            return RiskLevel.MEDIUM
         else:
-            return RiskLevel.LOW
+            # Fallback to OpenAI (for development)
+            self.client = AsyncOpenAI()
+    
+    async def generate_proposal(
+        self,
+        project: Project,
+        user_request: str,
+        context: Optional[dict] = None
+    ) -> ArchitectureProposal:
+        """Generate architecture proposal with multiple options.
+        
+        Args:
+            project: Project to associate proposal with
+            user_request: User's natural language request
+            context: Optional context (subscription limits, existing infrastructure, etc.)
+        
+        Returns:
+            ArchitectureProposal with options
+        """
+        # Create proposal record
+        proposal = ArchitectureProposal(
+            id=uuid.uuid4(),
+            project_id=project.id,
+            tenant_id=project.tenant_id,
+            user_request=user_request,
+            status=ProposalStatus.GENERATING
+        )
+        self.session.add(proposal)
+        await self.session.commit()
+        
+        try:
+            # Build context-aware prompt
+            context_str = self._build_context_prompt(context) if context else ""
+            full_prompt = f"{context_str}\n\nUSER REQUEST:\n{user_request}"
+            
+            # Call AI model
+            response = await self.client.chat.completions.create(
+                model=settings.azure_openai_deployment_name,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": full_prompt}
+                ],
+                temperature=settings.ai_temperature,
+                max_tokens=settings.ai_max_tokens,
+                response_format={"type": "json_object"}
+            )
+            
+            # Parse AI response
+            ai_output = json.loads(response.choices[0].message.content)
+            options_data = ai_output.get("options", [])
+            
+            # Create proposal options with cost estimates
+            for option_data in options_data:
+                # Estimate costs for each resource
+                resources = option_data.get("resources", [])
+                cost_estimates = await self._estimate_costs(resources)
+                
+                total_monthly_cost = sum(est["monthly_cost"] for est in cost_estimates)
+                
+                option = ProposalOption(
+                    id=uuid.uuid4(),
+                    proposal_id=proposal.id,
+                    option_number=option_data["option_number"],
+                    name=option_data["name"],
+                    description=option_data["description"],
+                    architecture_diagram=option_data["architecture_diagram"],
+                    resources_json={"resources": resources},
+                    cost_estimate_json={"estimates": cost_estimates},
+                    pros_cons_json={
+                        "pros": option_data.get("pros", []),
+                        "cons": option_data.get("cons", [])
+                    },
+                    monthly_cost=total_monthly_cost
+                )
+                self.session.add(option)
+            
+            # Update proposal status
+            proposal.status = ProposalStatus.READY
+            await self.session.commit()
+            await self.session.refresh(proposal)
+            
+            return proposal
+            
+        except Exception as e:
+            # Mark proposal as failed
+            proposal.status = ProposalStatus.FAILED
+            proposal.error_message = str(e)
+            await self.session.commit()
+            raise
+    
+    async def refine_proposal(
+        self,
+        proposal: ArchitectureProposal,
+        feedback: str
+    ) -> ArchitectureProposal:
+        """Refine existing proposal based on user feedback.
+        
+        Args:
+            proposal: Existing proposal
+            feedback: User's refinement feedback
+        
+        Returns:
+            Updated proposal
+        """
+        # Build conversation history
+        conversation_history = [
+            {"role": "user", "content": proposal.user_request},
+            # AI response would be here but we don't store it
+            {"role": "user", "content": f"REFINEMENT REQUEST: {feedback}"}
+        ]
+        
+        # Regenerate with feedback
+        try:
+            response = await self.client.chat.completions.create(
+                model=settings.azure_openai_deployment_name,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    *conversation_history
+                ],
+                temperature=settings.ai_temperature,
+                max_tokens=settings.ai_max_tokens,
+                response_format={"type": "json_object"}
+            )
+            
+            # Clear old options
+            for option in proposal.options:
+                await self.session.delete(option)
+            
+            # Parse and create new options
+            ai_output = json.loads(response.choices[0].message.content)
+            options_data = ai_output.get("options", [])
+            
+            for option_data in options_data:
+                resources = option_data.get("resources", [])
+                cost_estimates = await self._estimate_costs(resources)
+                total_monthly_cost = sum(est["monthly_cost"] for est in cost_estimates)
+                
+                option = ProposalOption(
+                    id=uuid.uuid4(),
+                    proposal_id=proposal.id,
+                    option_number=option_data["option_number"],
+                    name=option_data["name"],
+                    description=option_data["description"],
+                    architecture_diagram=option_data["architecture_diagram"],
+                    resources_json={"resources": resources},
+                    cost_estimate_json={"estimates": cost_estimates},
+                    pros_cons_json={
+                        "pros": option_data.get("pros", []),
+                        "cons": option_data.get("cons", [])
+                    },
+                    monthly_cost=total_monthly_cost
+                )
+                self.session.add(option)
+            
+            proposal.status = ProposalStatus.READY
+            await self.session.commit()
+            await self.session.refresh(proposal)
+            
+            return proposal
+            
+        except Exception as e:
+            proposal.status = ProposalStatus.FAILED
+            proposal.error_message = str(e)
+            await self.session.commit()
+            raise
+    
+    def _build_context_prompt(self, context: dict) -> str:
+        """Build context-aware prompt segment."""
+        parts = ["ADDITIONAL CONTEXT:"]
+        
+        if "budget" in context:
+            parts.append(f"- Budget constraint: ${context['budget']}/month")
+        
+        if "subscription_quotas" in context:
+            parts.append("- Current subscription quotas: " + json.dumps(context["subscription_quotas"]))
+        
+        if "existing_resources" in context:
+            parts.append("- Existing resources to integrate: " + json.dumps(context["existing_resources"]))
+        
+        if "compliance" in context:
+            parts.append(f"- Compliance requirements: {', '.join(context['compliance'])}")
+        
+        return "\n".join(parts)
+    
+    async def _estimate_costs(self, resources: list[dict]) -> list[dict]:
+        """Estimate costs for resources.
+        
+        Args:
+            resources: List of resource definitions
+        
+        Returns:
+            List of cost estimates
+        """
+        estimates = []
+        
+        for resource in resources:
+            try:
+                # Get pricing from pricing service
+                price = await self.pricing_service.get_price(
+                    service=resource["type"],
+                    sku=resource["sku"],
+                    region=resource["region"]
+                )
+                
+                # Calculate monthly cost (assuming 730 hours/month)
+                monthly_cost = price * 730 if price else 0.0
+                
+                estimates.append({
+                    "service": resource["type"],
+                    "sku": resource["sku"],
+                    "region": resource["region"],
+                    "quantity": 1,
+                    "unit_price": float(price) if price else 0.0,
+                    "monthly_cost": float(monthly_cost),
+                    "unit": "hour"
+                })
+            except Exception:
+                # If pricing fails, provide estimate of 0
+                estimates.append({
+                    "service": resource["type"],
+                    "sku": resource["sku"],
+                    "region": resource["region"],
+                    "quantity": 1,
+                    "unit_price": 0.0,
+                    "monthly_cost": 0.0,
+                    "unit": "hour"
+                })
+        
+        return estimates

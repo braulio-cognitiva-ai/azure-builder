@@ -4,10 +4,10 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+from app.db_types import UUID
 
 if TYPE_CHECKING:
     from app.models.conversation import Conversation, GeneratedCommand
@@ -20,14 +20,14 @@ class Execution(Base):
 
     __tablename__ = "executions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
-    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False, index=True)
-    generated_command_id = Column(UUID(as_uuid=True), ForeignKey("generated_commands.id"), nullable=False)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
+    conversation_id = Column(UUID(), ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False, index=True)
+    generated_command_id = Column(UUID(), ForeignKey("generated_commands.id"), nullable=False)
     status = Column(String(20), nullable=False, default="pending", index=True)  # pending, running, completed, failed, cancelled
     started_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
-    started_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    started_by = Column(UUID(), ForeignKey("users.id"), nullable=False)
     error = Column(Text, nullable=True)
     output = Column(JSON, nullable=True)  # Structured results
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
@@ -67,8 +67,8 @@ class ExecutionStep(Base):
         UniqueConstraint("execution_id", "step_number", name="uq_execution_step"),
     )
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    execution_id = Column(UUID(as_uuid=True), ForeignKey("executions.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    execution_id = Column(UUID(), ForeignKey("executions.id", ondelete="CASCADE"), nullable=False, index=True)
     step_number = Column(Integer, nullable=False)
     command = Column(Text, nullable=False)
     status = Column(String(20), nullable=False)  # pending, running, completed, failed

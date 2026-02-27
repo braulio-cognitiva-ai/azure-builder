@@ -2,7 +2,7 @@
 from functools import lru_cache
 from typing import Optional
 
-from pydantic import Field, PostgresDsn, RedisDsn, field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -29,15 +29,15 @@ class Settings(BaseSettings):
     reload: bool = False
     
     # Database
-    database_url: PostgresDsn = Field(
-        default="postgresql+asyncpg://postgres:postgres@localhost:5432/azurebuilder"
+    database_url: str = Field(
+        default="sqlite+aiosqlite:///./azurebuilder.db"
     )
     database_pool_size: int = 20
     database_max_overflow: int = 10
     database_echo: bool = False
     
-    # Redis
-    redis_url: RedisDsn = Field(default="redis://localhost:6379/0")
+    # Redis (optional for dev)
+    redis_url: Optional[str] = Field(default=None)
     redis_max_connections: int = 50
     
     # Azure
@@ -84,6 +84,14 @@ class Settings(BaseSettings):
     ai_temperature: float = 0.1
     ai_max_conversation_history: int = 10
     
+    # Azure Pricing API
+    azure_pricing_api_url: str = "https://prices.azure.com/api/retail/prices"
+    pricing_cache_ttl: int = 3600  # 1 hour in seconds
+    
+    # MCP (Model Context Protocol) - for future use
+    mcp_endpoint: Optional[str] = None
+    mcp_api_key: Optional[str] = None
+    
     # Logging
     log_level: str = "INFO"
     log_format: str = "json"
@@ -95,9 +103,12 @@ class Settings(BaseSettings):
     @field_validator("database_url", mode="before")
     @classmethod
     def validate_database_url(cls, v: str) -> str:
-        """Ensure asyncpg driver for SQLAlchemy."""
-        if isinstance(v, str) and v.startswith("postgresql://"):
-            return v.replace("postgresql://", "postgresql+asyncpg://")
+        """Ensure correct driver for SQLAlchemy."""
+        if isinstance(v, str):
+            if v.startswith("postgresql://"):
+                return v.replace("postgresql://", "postgresql+asyncpg://")
+            elif v.startswith("sqlite://") and "+aiosqlite" not in v:
+                return v.replace("sqlite://", "sqlite+aiosqlite://")
         return v
 
 

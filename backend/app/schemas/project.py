@@ -12,7 +12,7 @@ class ProjectBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
     tags: list[str] = Field(default_factory=list)
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    project_metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class ProjectCreate(ProjectBase):
@@ -27,7 +27,7 @@ class ProjectUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
     tags: Optional[list[str]] = None
-    metadata: Optional[dict[str, Any]] = None
+    project_metadata: Optional[dict[str, Any]] = None
 
 
 class Project(ProjectBase):

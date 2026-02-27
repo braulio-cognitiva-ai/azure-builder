@@ -8,15 +8,28 @@ from sqlalchemy.orm import declarative_base
 
 from app.config import settings
 
-# Create async engine
-engine = create_async_engine(
-    str(settings.database_url),
-    echo=settings.database_echo,
-    pool_size=settings.database_pool_size,
-    max_overflow=settings.database_max_overflow,
-    pool_pre_ping=True,  # Verify connections before using
-    pool_recycle=3600,  # Recycle connections after 1 hour
-)
+# Detect database type
+is_sqlite = str(settings.database_url).startswith("sqlite")
+
+# Create async engine with appropriate settings
+engine_kwargs = {
+    "echo": settings.database_echo,
+}
+
+if not is_sqlite:
+    engine_kwargs.update({
+        "pool_size": settings.database_pool_size,
+        "max_overflow": settings.database_max_overflow,
+        "pool_pre_ping": True,
+        "pool_recycle": 3600,
+    })
+else:
+    # SQLite-specific settings
+    engine_kwargs.update({
+        "connect_args": {"check_same_thread": False},
+    })
+
+engine = create_async_engine(str(settings.database_url), **engine_kwargs)
 
 # Create session factory
 AsyncSessionLocal = async_sessionmaker(
@@ -56,16 +69,20 @@ async def set_tenant_context(session: AsyncSession, tenant_id: str) -> None:
     This MUST be called before any database operations to ensure
     proper tenant isolation via PostgreSQL RLS policies.
     
+    For SQLite, this is a no-op (RLS not supported).
+    
     Args:
         session: Database session
         tenant_id: UUID of the current tenant
     """
-    await session.execute(text(f"SET app.current_tenant_id = '{tenant_id}'"))
+    if not is_sqlite:
+        await session.execute(text(f"SET app.current_tenant_id = '{tenant_id}'"))
 
 
 async def clear_tenant_context(session: AsyncSession) -> None:
     """Clear the tenant context (use with caution)."""
-    await session.execute(text("SET app.current_tenant_id = ''"))
+    if not is_sqlite:
+        await session.execute(text("SET app.current_tenant_id = ''"))
 
 
 @asynccontextmanager
@@ -100,29 +117,47 @@ async def init_db() -> None:
     """Initialize database (create tables if they don't exist)."""
     async with engine.begin() as conn:
         # Import all models to register them with Base
-        from app.models import audit, conversation, execution, project, tenant, user  # noqa
+        from app import models  # noqa - Import entire models package to ensure all are registered
         
         # Create all tables
         await conn.run_sync(Base.metadata.create_all)
         
-        # Enable UUID extension
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"))
+        # PostgreSQL-specific setup
+        if not is_sqlite:
+            # Enable UUID extension
+            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"))
+            
+            # Enable Row-Level Security on all tenant-scoped tables
+            tables_with_rls = [
+                "users", "projects", "conversations", "messages",
+                "audit_logs", "architecture_proposals", "deployment_requests", "azure_connections"
+            ]
+            
+            for table in tables_with_rls:
+                # Check if table exists before altering
+                table_check = await conn.execute(text(f"""
+                    SELECT EXISTS (
+                        SELECT FROM information_schema.tables 
+                        WHERE table_name = '{table}'
+                    );
+                """))
+                exists = table_check.scalar()
+                
+                if exists:
+                    await conn.execute(text(f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY;"))
+                    await conn.execute(text(f"""
+                        DROP POLICY IF EXISTS tenant_isolation_{table} ON {table};
+                    """))
+                    await conn.execute(text(f"""
+                        CREATE POLICY tenant_isolation_{table} ON {table}
+                        USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
+                    """))
         
-        # Enable Row-Level Security on all tenant-scoped tables
-        tables_with_rls = [
-            "users", "projects", "conversations", "messages",
-            "generated_commands", "executions", "audit_logs"
-        ]
-        
-        for table in tables_with_rls:
-            await conn.execute(text(f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY;"))
-            await conn.execute(text(f"""
-                DROP POLICY IF EXISTS tenant_isolation_{table} ON {table};
-            """))
-            await conn.execute(text(f"""
-                CREATE POLICY tenant_isolation_{table} ON {table}
-                USING (tenant_id = current_setting('app.current_tenant_id', true)::uuid);
-            """))
+        # Seed templates
+        from app.services.template_service import TemplateService
+        async with AsyncSessionLocal() as session:
+            template_service = TemplateService(session)
+            await template_service.seed_templates()
 
 
 async def close_db() -> None:
