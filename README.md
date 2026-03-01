@@ -2,13 +2,24 @@
 
 **AI Solution Architect as a Service**
 
-Transform natural language into production-ready Azure infrastructure. Get 2-3 architecture options with real-time costs, review generated Bicep templates, approve, and deploy—all from a conversational interface.
+Transform natural language into production-ready Azure infrastructure. Get 2-3 architecture options with real-time costs, security validation, quota checking, and cost monitoring—all from a conversational interface.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-green.svg)](https://fastapi.tiangolo.com/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+
+## 🆕 What's New (March 2026)
+
+- ✅ **Budget Constraints:** Set monthly limits, AI respects them
+- ✅ **Visual Mermaid Diagrams:** Beautiful architecture visualizations
+- ✅ **Security Validation:** 7 automated checks with recommendations
+- ✅ **Quota Checking:** Pre-deployment validation (vCPUs, VMs, network, storage)
+- ✅ **Resource Discovery:** Finds existing infrastructure and suggests reuse
+- ✅ **Cost Monitoring:** Real-time tracking of actual vs. estimated costs
+- ✅ **Drift Detection:** Alerts when resources are manually changed
+- ✅ **Infrastructure Dashboard:** Complete overview of deployed resources
 
 ---
 
@@ -74,24 +85,53 @@ Azure Builder: Great choice! Generating deployment plan...
 ### 🤖 AI-Powered Architecture Design
 - **Natural Language Input:** Describe what you need in plain English
 - **Multi-Option Proposals:** Get 2-3 distinct architectures with different SKU tiers
+- **Visual Mermaid Diagrams:** Beautiful architecture diagrams, not ASCII art
 - **Context-Aware:** Integrates with your existing Azure infrastructure
 - **Template Library:** 8 pre-built patterns (web apps, microservices, data pipelines, AI/ML)
 
-### 💰 Real-Time Cost Estimation
+### 💰 Budget-Aware Cost Management
+- **Budget Constraints:** Set monthly limits (e.g., "$300/month") and AI respects them
 - **Azure Retail Prices API:** Always up-to-date pricing
-- **Regional Comparisons:** See cost differences across regions
-- **SKU Comparisons:** Compare P1V2 vs P2V2 vs P3V2
-- **Monthly Breakdowns:** Know exactly what you'll pay
+- **Real-Time Cost Tracking:** Monitor actual spend vs. estimates
+- **Cost Variance Alerts:** Get notified when projected costs exceed 10%
+- **Monthly Projections:** See projected monthly costs based on current usage
+- **Per-Resource Breakdowns:** Know exactly what each resource costs
 
-### 🔒 Enterprise-Ready Security
-- **Azure AD B2C Integration:** SSO with social logins
-- **Role-Based Access Control:** Admin, Operator, Viewer roles
-- **Tenant Data Isolation:** Row-level security (RLS) in PostgreSQL
-- **Azure Key Vault:** Secure credential storage
-- **OAuth2 for Azure:** No permanent credentials, token-based access
+### 🔒 Automated Security Validation
+- **7 Security Checks:** Automated scanning against Azure Security Benchmark
+  - ✓ Key Vault usage for secrets
+  - ✓ Public access exposure
+  - ✓ Network Security Groups
+  - ✓ Managed Identity vs. passwords
+  - ✓ HTTPS enforcement
+  - ✓ Encryption at rest
+  - ✓ Logging & monitoring
+- **Severity-Based Prioritization:** CRITICAL, HIGH, MEDIUM, LOW
+- **Actionable Recommendations:** Links to Azure documentation
+- **Security Score:** 0-100 rating for each proposal
+
+### ⚖️ Intelligent Quota Checking
+- **Pre-Deployment Validation:** Check quota BEFORE deploying
+- **Real-Time Quota Status:** vCPUs, VMs, Public IPs, VNets, Storage
+- **Deployment Blocking:** Prevent deployments that will fail due to quota
+- **Warning Alerts:** Get notified at 80% quota usage
+- **Regional Quotas:** Check availability in specific regions
+
+### 🔍 Resource Discovery & Integration
+- **Existing Infrastructure Scanning:** Discover what's already deployed
+- **Integration Suggestions:** "Found 2 Key Vaults, consider reusing"
+- **Naming Conflict Detection:** Prevent duplicate resource names
+- **Smart Recommendations:** Reuse existing VNets, Log Analytics, etc.
+
+### 📊 Infrastructure Monitoring
+- **Deployed Resource Tracking:** Track every resource deployed by Azure Builder
+- **Cost Monitoring Dashboard:** Real-time actual vs. estimated costs
+- **Configuration Drift Detection:** Alert when resources are manually changed
+- **Resource Status Tracking:** Active, deleted, failed, unknown
+- **Historical Tracking:** When deployed, last synced, deleted
 
 ### ✅ Approval Workflows
-- **Review Before Deploy:** See all resources, costs, and warnings
+- **Review Before Deploy:** See all resources, costs, security warnings, and quota status
 - **Bicep/ARM Templates:** Download generated infrastructure code
 - **Multi-User Approval:** Operator creates, Admin approves
 - **Audit Trail:** Complete history of who did what, when
@@ -277,6 +317,7 @@ For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITE
 | Next.js           | React framework          | 14.0+   |
 | React             | UI library               | 18.2+   |
 | Tailwind CSS      | Styling                  | 3.4+    |
+| Mermaid.js        | Architecture diagrams    | Latest  |
 | SWR               | Data fetching            | 2.2+    |
 | React Hook Form   | Form handling            | 7.49+   |
 | Zod               | Schema validation        | 3.22+   |
@@ -285,16 +326,28 @@ For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITE
 
 ### Infrastructure
 
-| Technology              | Purpose                    |
-|-------------------------|----------------------------|
-| PostgreSQL 15+          | Primary database           |
-| Redis                   | Session & pricing cache    |
-| Azure OpenAI            | AI architecture generation |
-| Azure Key Vault         | Secrets management         |
-| Azure Container Apps    | Application hosting (MVP)  |
-| Azure Front Door        | CDN + WAF                  |
-| Docker                  | Containerization           |
-| Docker Compose          | Local development          |
+| Technology                    | Purpose                       |
+|-------------------------------|-------------------------------|
+| PostgreSQL 15+                | Primary database              |
+| Redis                         | Session & pricing cache       |
+| Azure OpenAI                  | AI architecture generation    |
+| Azure Key Vault               | Secrets management            |
+| Azure Container Apps          | Application hosting (MVP)     |
+| Azure Front Door              | CDN + WAF                     |
+| Docker                        | Containerization              |
+| Docker Compose                | Local development             |
+
+### Azure SDKs
+
+| SDK                              | Purpose                          |
+|----------------------------------|----------------------------------|
+| azure-identity                   | Authentication                   |
+| azure-mgmt-resource              | Resource management & discovery  |
+| azure-mgmt-compute               | VM & quota checking              |
+| azure-mgmt-network               | Network quota checking           |
+| azure-mgmt-storage               | Storage quota checking           |
+| azure-mgmt-costmanagement        | Cost tracking & monitoring       |
+| azure-mgmt-subscription          | Subscription info                |
 
 ### DevOps
 
