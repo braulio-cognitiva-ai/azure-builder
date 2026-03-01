@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: azurebuilder-backend-test
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///:memory:
+      - JWT_SECRET_KEY=test-secret-key
+      - ENVIRONMENT=test
+      - DEBUG=true
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    networks:
+      - test
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: azurebuilder-frontend-test
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000/api/v1
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - test
+
+  test-runner:
+    build:
+      context: ./backend
+    container_name: azurebuilder-test-runner
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///:memory:
+      - JWT_SECRET_KEY=test-secret-key
+      - ENVIRONMENT=test
+    depends_on:
+      - backend
+    command: pytest -v --tb=short
+    networks:
+      - test
+
+networks:
+  test:
+    driver: bridge

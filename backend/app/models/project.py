@@ -4,9 +4,10 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 import enum
 
-from sqlalchemy import String, Text, DateTime, ForeignKey, func, Enum as SQLEnum
+from sqlalchemy import String, Text, DateTime, ForeignKey, func, Enum as SQLEnum, Numeric
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from decimal import Decimal
 
 from app.database import Base
 from app.db_types import UUID, ARRAY
@@ -34,6 +35,9 @@ class Project(Base):
     
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    
+    # Budget constraint (monthly cost limit in USD)
+    budget_limit: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
     
     status: Mapped[ProjectStatus] = mapped_column(
         SQLEnum(ProjectStatus, native_enum=False, length=20),

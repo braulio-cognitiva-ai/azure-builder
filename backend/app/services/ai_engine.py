@@ -5,7 +5,7 @@ proposals with multiple options, each with diagrams, cost estimates, and recomme
 """
 import json
 import uuid
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from openai import AsyncOpenAI
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,6 +23,7 @@ from app.schemas.proposal import (
     ProposalOptionCreate
 )
 from app.services.pricing_service import PricingService
+from app.services.security_validator import SecurityValidator, validate_security
 
 
 # =============================================================================
@@ -66,22 +67,25 @@ Your job: Given a user's natural language request, generate 2-3 architecture opt
    }
 
 2. **Architecture Diagrams:**
-   - Use ASCII art with boxes, arrows, and labels
-   - Show data flow and dependencies
-   - Keep it readable (max 80 chars wide)
+   - Use Mermaid.js syntax for visual diagrams
+   - Show data flow and dependencies with arrows
+   - Use graph TB (top-bottom) or LR (left-right) layout
    - Example:
+     ```mermaid
+     graph TB
+         Client[Client/Browser]
+         AppService[App Service<br/>P1V2]
+         SQL[(SQL Database<br/>S1)]
+         Storage[Storage Account]
+         KeyVault[Key Vault]
+         
+         Client -->|HTTPS| AppService
+         AppService -->|Query| SQL
+         AppService -->|Store Files| Storage
+         AppService -->|Get Secrets| KeyVault
      ```
-     ┌────────────┐      ┌──────────────┐      ┌──────────┐
-     │   Client   │─────▶│  App Service │─────▶│   SQL    │
-     └────────────┘      │   (P1V2)     │      │ Database │
-                         └──────────────┘      └──────────┘
-                                │
-                                ▼
-                         ┌──────────────┐
-                         │   Storage    │
-                         │   Account    │
-                         └──────────────┘
-     ```
+   - Use subgraphs for resource groups or networks
+   - Include SKU info in node labels where relevant
 
 3. **Resource Naming:**
    - Follow Azure conventions: lowercase, hyphens allowed, 3-24 chars
@@ -204,6 +208,12 @@ class AIEngineService:
         await self.session.commit()
         
         try:
+            # Build context including project budget
+            if context is None:
+                context = {}
+            if project.budget_limit:
+                context["budget"] = float(project.budget_limit)
+            
             # Build context-aware prompt
             context_str = self._build_context_prompt(context) if context else ""
             full_prompt = f"{context_str}\n\nUSER REQUEST:\n{user_request}"
@@ -224,13 +234,21 @@ class AIEngineService:
             ai_output = json.loads(response.choices[0].message.content)
             options_data = ai_output.get("options", [])
             
-            # Create proposal options with cost estimates
+            # Create proposal options with cost estimates and security validation
             for option_data in options_data:
                 # Estimate costs for each resource
                 resources = option_data.get("resources", [])
                 cost_estimates = await self._estimate_costs(resources)
                 
                 total_monthly_cost = sum(est["monthly_cost"] for est in cost_estimates)
+                
+                # Validate security
+                security_report = await self._validate_security(resources)
+                
+                # Check if option exceeds budget
+                budget_exceeded = False
+                if project.budget_limit and total_monthly_cost > float(project.budget_limit):
+                    budget_exceeded = True
                 
                 option = ProposalOption(
                     id=uuid.uuid4(),
@@ -243,7 +261,9 @@ class AIEngineService:
                     cost_estimate_json={"estimates": cost_estimates},
                     pros_cons_json={
                         "pros": option_data.get("pros", []),
-                        "cons": option_data.get("cons", [])
+                        "cons": option_data.get("cons", []),
+                        "security_report": security_report,
+                        "budget_exceeded": budget_exceeded
                     },
                     monthly_cost=total_monthly_cost
                 )
@@ -310,6 +330,15 @@ class AIEngineService:
                 cost_estimates = await self._estimate_costs(resources)
                 total_monthly_cost = sum(est["monthly_cost"] for est in cost_estimates)
                 
+                # Validate security
+                security_report = await self._validate_security(resources)
+                
+                # Get project for budget check
+                project = await self.session.get(Project, proposal.project_id)
+                budget_exceeded = False
+                if project and project.budget_limit and total_monthly_cost > float(project.budget_limit):
+                    budget_exceeded = True
+                
                 option = ProposalOption(
                     id=uuid.uuid4(),
                     proposal_id=proposal.id,
@@ -321,7 +350,9 @@ class AIEngineService:
                     cost_estimate_json={"estimates": cost_estimates},
                     pros_cons_json={
                         "pros": option_data.get("pros", []),
-                        "cons": option_data.get("cons", [])
+                        "cons": option_data.get("cons", []),
+                        "security_report": security_report,
+                        "budget_exceeded": budget_exceeded
                     },
                     monthly_cost=total_monthly_cost
                 )
@@ -402,3 +433,48 @@ class AIEngineService:
                 })
         
         return estimates
+    
+    async def _validate_security(self, resources: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Validate security of proposed resources.
+        
+        Args:
+            resources: List of resource definitions from AI
+        
+        Returns:
+            Security report as dict
+        """
+        # Convert raw resources to ResourceDefinition objects
+        resource_defs = []
+        for res in resources:
+            resource_defs.append(ResourceDefinition(
+                type=res.get("type", ""),
+                name=res.get("name", ""),
+                sku=res.get("sku", ""),
+                region=res.get("region", "eastus"),
+                properties=res.get("properties", {})
+            ))
+        
+        # Run security validation
+        validator = SecurityValidator()
+        report = validator.validate_proposal(resource_defs)
+        
+        # Convert to dict for JSON storage
+        return {
+            "score": report.score,
+            "passed_checks": report.passed_checks,
+            "total_checks": report.total_checks,
+            "has_critical": report.has_critical,
+            "has_high": report.has_high,
+            "issues": [
+                {
+                    "severity": issue.severity.value,
+                    "category": issue.category,
+                    "resource_type": issue.resource_type,
+                    "resource_name": issue.resource_name,
+                    "issue": issue.issue,
+                    "recommendation": issue.recommendation,
+                    "doc_link": issue.doc_link
+                }
+                for issue in report.issues
+            ]
+        }

@@ -2,6 +2,7 @@
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID
+from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
@@ -11,6 +12,7 @@ class ProjectBase(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
+    budget_limit: Optional[Decimal] = Field(None, description="Monthly budget limit in USD", ge=0)
     tags: list[str] = Field(default_factory=list)
     project_metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -26,6 +28,7 @@ class ProjectUpdate(BaseModel):
 
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
+    budget_limit: Optional[Decimal] = Field(None, description="Monthly budget limit in USD", ge=0)
     tags: Optional[list[str]] = None
     project_metadata: Optional[dict[str, Any]] = None
 
