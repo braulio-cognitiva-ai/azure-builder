@@ -24,6 +24,8 @@ from app.schemas.proposal import (
 )
 from app.services.pricing_service import PricingService
 from app.services.security_validator import SecurityValidator, validate_security
+from app.services.quota_checker import QuotaCheckerService, QuotaStatus
+from app.services.resource_discovery import ResourceDiscoveryService
 
 
 # =============================================================================
@@ -234,7 +236,7 @@ class AIEngineService:
             ai_output = json.loads(response.choices[0].message.content)
             options_data = ai_output.get("options", [])
             
-            # Create proposal options with cost estimates and security validation
+            # Create proposal options with cost estimates, security validation, and quota checks
             for option_data in options_data:
                 # Estimate costs for each resource
                 resources = option_data.get("resources", [])
@@ -244,6 +246,11 @@ class AIEngineService:
                 
                 # Validate security
                 security_report = await self._validate_security(resources)
+                
+                # Check quotas (if Azure connection available in context)
+                quota_report = None
+                if context and context.get("azure_connection"):
+                    quota_report = await self._check_quotas(resources, context["azure_connection"])
                 
                 # Check if option exceeds budget
                 budget_exceeded = False
@@ -263,6 +270,7 @@ class AIEngineService:
                         "pros": option_data.get("pros", []),
                         "cons": option_data.get("cons", []),
                         "security_report": security_report,
+                        "quota_report": quota_report,
                         "budget_exceeded": budget_exceeded
                     },
                     monthly_cost=total_monthly_cost
@@ -478,3 +486,68 @@ class AIEngineService:
                 for issue in report.issues
             ]
         }
+    
+    async def _check_quotas(self, resources: List[Dict[str, Any]], azure_connection: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Check Azure subscription quotas for proposed resources.
+        
+        Args:
+            resources: List of resource definitions from AI
+            azure_connection: Azure connection info (subscription_id, credentials)
+        
+        Returns:
+            Quota report as dict or None if check fails
+        """
+        try:
+            # Convert raw resources to ResourceDefinition objects
+            resource_defs = []
+            for res in resources:
+                resource_defs.append(ResourceDefinition(
+                    type=res.get("type", ""),
+                    name=res.get("name", ""),
+                    sku=res.get("sku", ""),
+                    region=res.get("region", "eastus"),
+                    properties=res.get("properties", {})
+                ))
+            
+            # Create quota checker
+            checker = QuotaCheckerService(
+                subscription_id=azure_connection["subscription_id"],
+                tenant_id=azure_connection.get("tenant_id"),
+                client_id=azure_connection.get("client_id"),
+                client_secret=azure_connection.get("client_secret")
+            )
+            
+            # Check quotas
+            report = await checker.check_quotas(
+                resources=resource_defs,
+                region=resource_defs[0].region if resource_defs else "eastus"
+            )
+            
+            await checker.close()
+            
+            # Convert to dict for JSON storage
+            return {
+                "overall_status": report.overall_status.value,
+                "can_deploy": report.can_deploy,
+                "warnings": report.warnings,
+                "errors": report.errors,
+                "checks": [
+                    {
+                        "resource_type": check.resource_type,
+                        "quota_name": check.quota_name,
+                        "current_usage": check.current_usage,
+                        "quota_limit": check.quota_limit,
+                        "requested": check.requested,
+                        "available": check.available,
+                        "after_deployment": check.after_deployment,
+                        "status": check.status.value,
+                        "message": check.message
+                    }
+                    for check in report.checks
+                ]
+            }
+        
+        except Exception as e:
+            # If quota check fails, return None (don't block proposal)
+            print(f"Quota check failed: {e}")
+            return None
